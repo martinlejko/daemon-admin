@@ -1,0 +1,12 @@
+---
+description: Frontend standards for dashboard and UI flows
+globs: ["frontend/**"]
+alwaysApply: false
+---
+
+- Use **TypeScript + React functional components**.
+- **ChakraUI + HorizonUI** for all layout and theming.
+- Organize by features: `machines/`, `services/`
+- Use **React Query** or `SWR` for fetching API data.
+- Always use `AxiosInstance` with a base URL configured.
+- Vite for building the frontend, Bun packet manager frontend

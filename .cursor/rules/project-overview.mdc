@@ -1,0 +1,18 @@
+---
+description: Project overview and stack enforcement
+alwaysApply: true
+---
+
+- This project uses a full-stack architecture for managing and monitoring Linux machines via a web dashboard.
+- Use:
+  - FastAPI for backend
+  - PostgreSQL
+  - Fabric for SSH
+  - uv for python building and dependencies
+  - React + TypeScript + ChakraUI + HorizonUI on frontend
+  - Vite for building the frontend, Bun packet manager frontend
+- Avoid introducing non-approved libraries without team discussion.
+- Naming should follow snake_case in backend, camelCase in frontend.
+- Use Atomic Design principles
+
+@frontend.mdc
