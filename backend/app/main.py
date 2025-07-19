@@ -53,8 +53,8 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=settings.version,
         description="Linux server and systemd service management API",
-        docs_url="/docs" if settings.debug else None,
-        redoc_url="/redoc" if settings.debug else None,
+        docs_url="/docs",
+        redoc_url="/redoc",
         lifespan=lifespan,
     )
     

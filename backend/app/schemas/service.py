@@ -1,7 +1,7 @@
 """Service-related Pydantic schemas for API requests and responses."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -118,8 +118,8 @@ class ServiceResponse(BaseModel):
     
     # Service metadata
     environment_variables: Optional[Dict[str, str]]
-    service_config: Optional[Dict[str, any]]
-    override_config: Optional[Dict[str, any]]
+    service_config: Optional[Dict[str, Any]]
+    override_config: Optional[Dict[str, Any]]
     
     # Management settings
     is_managed: bool
@@ -127,7 +127,7 @@ class ServiceResponse(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]]
-    extra_data: Optional[Dict[str, any]]
+    extra_data: Optional[Dict[str, Any]]
     
     # Audit fields
     created_at: datetime
@@ -305,24 +305,16 @@ class ServiceCreateRequest(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]] = Field(None, description="Service tags")
-    extra_data: Optional[Dict[str, any]] = Field(None, description="Additional service metadata")
+    extra_data: Optional[Dict[str, Any]] = Field(None, description="Additional service metadata")
     
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "name": "my-app",
-                "display_name": "My Application",
-                "description": "Custom application service",
-                "exec_start": "/opt/myapp/bin/myapp --config /etc/myapp/config.yml",
+                "name": "my-custom-service",
+                "display_name": "My Custom Service",
+                "exec_start": "/usr/bin/python3 /app/scripts/my_service.py",
                 "restart_policy": "on-failure",
-                "environment_variables": {
-                    "APP_ENV": "production",
-                    "LOG_LEVEL": "info"
-                },
-                "working_directory": "/opt/myapp",
-                "user": "myapp",
                 "auto_restart": True,
-                "tags": {"app": "myapp", "environment": "production"}
             }
         }
     )
@@ -341,4 +333,4 @@ class ServiceUpdateRequest(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]] = Field(None)
-    extra_data: Optional[Dict[str, any]] = Field(None)
+    extra_data: Optional[Dict[str, Any]] = Field(None)

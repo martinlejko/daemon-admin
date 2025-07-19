@@ -1,7 +1,7 @@
 """Server-related Pydantic schemas for API requests and responses."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, validator, ConfigDict
@@ -36,7 +36,7 @@ class ServerCreateRequest(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]] = Field(None, description="Server tags")
-    extra_data: Optional[Dict[str, any]] = Field(None, description="Additional server metadata")
+    extra_data: Optional[Dict[str, Any]] = Field(None, description="Additional server metadata")
     
     model_config = ConfigDict(
         json_schema_extra={
@@ -94,7 +94,7 @@ class ServerUpdateRequest(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]] = Field(None)
-    extra_data: Optional[Dict[str, any]] = Field(None)
+    extra_data: Optional[Dict[str, Any]] = Field(None)
     
     @validator('ip_address')
     def validate_ip_address(cls, v):
@@ -152,7 +152,7 @@ class ServerResponse(BaseModel):
     
     # Additional metadata
     tags: Optional[Dict[str, str]]
-    extra_data: Optional[Dict[str, any]]
+    extra_data: Optional[Dict[str, Any]]
     
     # Audit fields
     created_at: datetime

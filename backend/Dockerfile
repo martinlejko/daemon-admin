@@ -48,8 +48,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV UV_SYSTEM_PYTHON=1
 ENV ENVIRONMENT=production
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Create non-root user with home directory
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser
 
 # Copy dependency files
 COPY pyproject.toml ./
@@ -60,8 +60,9 @@ RUN uv sync --no-dev
 # Copy application code
 COPY . .
 
-# Change ownership to appuser
-RUN chown -R appuser:appuser /app
+# Create UV cache directory and change ownership
+RUN mkdir -p /home/appuser/.cache && \
+    chown -R appuser:appuser /app /home/appuser/.cache
 
 # Switch to non-root user
 USER appuser
