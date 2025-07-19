@@ -1,0 +1,21 @@
+[Unit]
+Description=Test Web Application
+Documentation=https://example.com/test-web-app
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=testuser
+Group=testuser
+WorkingDirectory=/opt/test-services
+ExecStart=/opt/test-services/web-app.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+Environment=PORT=3000
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target 

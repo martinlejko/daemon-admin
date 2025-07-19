@@ -1,0 +1,20 @@
+[Unit]
+Description=Test Monitoring Service
+Documentation=https://example.com/test-monitoring
+After=network.target
+
+[Service]
+Type=simple
+User=testuser
+Group=testuser
+WorkingDirectory=/opt/test-services
+ExecStart=/opt/test-services/monitoring.py
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+Environment=MONITOR_INTERVAL=60
+Environment=ALERT_ENABLED=true
+
+[Install]
+WantedBy=multi-user.target 

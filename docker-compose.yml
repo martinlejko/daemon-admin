@@ -1,0 +1,72 @@
+services:
+  # Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: daemon-admin-postgres
+    environment:
+      POSTGRES_DB: daemon_admin
+      POSTGRES_USER: daemon_admin
+      POSTGRES_PASSWORD: daemon_admin_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U daemon_admin"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: daemon-admin-backend
+    environment:
+      DATABASE_URL: postgresql://daemon_admin:daemon_admin_password@postgres:5432/daemon_admin
+      DEBUG: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: daemon-admin-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Test Linux Server with systemd and SSH
+  test-server:
+    build:
+      context: ./test-server
+      dockerfile: Dockerfile
+    container_name: daemon-admin-test-server
+    hostname: test-linux-server
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - test_server_data:/var/lib/systemd
+    ports:
+      - "2222:22" # SSH access on port 2222
+    environment:
+      - SSH_USER=testuser
+      - SSH_PASSWORD=testpass123
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  test_server_data:
