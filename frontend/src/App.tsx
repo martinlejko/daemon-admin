@@ -1,57 +1,54 @@
-import { Box, Button, Heading, HStack, Text, VStack } from '@chakra-ui/react';
-import { useState } from 'react';
-import viteLogo from '/vite.svg';
-import reactLogo from './assets/react.svg';
+/**
+ * Main application component with routing and providers
+ */
 
-function App() {
-  const [count, setCount] = useState(0);
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import Layout from '@/components/Layout/Layout';
+import Dashboard from '@/pages/Dashboard';
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const App: React.FC = () => {
   return (
-    <Box p="8" textAlign="center">
-      <VStack gap="6">
-        <HStack gap="4">
-          <a href="https://vite.dev" rel="noopener" target="_blank">
-            <img
-              alt="Vite logo"
-              src={viteLogo}
-              style={{ height: '6em', padding: '1.5em' }}
-            />
-          </a>
-          <a href="https://react.dev" rel="noopener" target="_blank">
-            <img
-              alt="React logo"
-              src={reactLogo}
-              style={{ height: '6em', padding: '1.5em' }}
-            />
-          </a>
-        </HStack>
-
-        <Heading size="2xl">Vite + React + Chakra UI</Heading>
-
-        <Box borderRadius="lg" borderWidth="1px" p="6">
-          <Button
-            colorScheme="blue"
-            onClick={() => setCount((count) => count + 1)}
-            size="lg"
-          >
-            count is {count}
-          </Button>
-          <Text mt="4">
-            Edit <code>src/App.tsx</code> and save to test HMR
-          </Text>
-        </Box>
-
-        <HStack gap="4">
-          <Button variant="outline">Click me</Button>
-          <Button colorScheme="teal">Click me too</Button>
-        </HStack>
-
-        <Text color="gray.500">
-          Click on the Vite and React logos to learn more
-        </Text>
-      </VStack>
-    </Box>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            
+            {/* Server routes */}
+            <Route path="servers" element={<div>Servers page - coming soon</div>} />
+            <Route path="servers/new" element={<div>Add server page - coming soon</div>} />
+            <Route path="servers/:id" element={<div>Server details page - coming soon</div>} />
+            
+            {/* Service routes */}
+            <Route path="services" element={<div>Services page - coming soon</div>} />
+            <Route path="services/:id" element={<div>Service details page - coming soon</div>} />
+            
+            {/* Settings routes */}
+            <Route path="settings" element={<div>Settings page - coming soon</div>} />
+            
+            {/* 404 route */}
+            <Route path="*" element={<div>Page not found</div>} />
+          </Route>
+        </Routes>
+      </Router>
+      
+      {/* React Query Devtools (only in development) */}
+      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;
