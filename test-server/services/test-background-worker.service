@@ -1,0 +1,20 @@
+[Unit]
+Description=Test Background Worker
+Documentation=https://example.com/test-background-worker
+After=network.target
+
+[Service]
+Type=simple
+User=testuser
+Group=testuser
+WorkingDirectory=/opt/test-services
+ExecStart=/opt/test-services/background-worker.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=WORKER_THREADS=4
+Environment=LOG_LEVEL=INFO
+
+[Install]
+WantedBy=multi-user.target 

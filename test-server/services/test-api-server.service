@@ -1,0 +1,22 @@
+[Unit]
+Description=Test API Server
+Documentation=https://example.com/test-api-server
+After=network.target redis-server.service
+Wants=redis-server.service
+
+[Service]
+Type=simple
+User=testuser
+Group=testuser
+WorkingDirectory=/opt/test-services
+ExecStart=/opt/test-services/api-server.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+Environment=API_PORT=8080
+Environment=REDIS_URL=redis://localhost:6379
+
+[Install]
+WantedBy=multi-user.target 

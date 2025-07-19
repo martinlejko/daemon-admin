@@ -5,7 +5,7 @@
 import { chakra } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiArrowLeft, FiPlus, FiServer } from 'react-icons/fi';
+import { FiArrowLeft, FiPlus, FiServer, FiTrash2 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCreateServer } from '@/hooks/useApi';
 import { useUIStore } from '@/store';
@@ -23,8 +23,11 @@ interface ServerFormData {
   ssh_username: string;
   ssh_password?: string;
   ssh_key_path?: string;
+  ssh_key_passphrase?: string;
   connection_timeout: number;
-  max_retries: number;
+  connection_retries: number;
+  is_enabled: boolean;
+  auto_discover_services: boolean;
   tags?: Record<string, string>;
 }
 
@@ -32,21 +35,29 @@ const AddServer: React.FC = () => {
   const navigate = useNavigate();
   const { setPageTitle, setBreadcrumbs, addNotification } = useUIStore();
   const [authMethod, setAuthMethod] = useState<'password' | 'key'>('password');
+  const [tagKey, setTagKey] = useState('');
+  const [tagValue, setTagValue] = useState('');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
+    getValues,
   } = useForm<ServerFormData>({
     defaultValues: {
       ssh_port: 22,
       connection_timeout: 30,
-      max_retries: 3,
+      connection_retries: 3,
+      is_enabled: true,
+      auto_discover_services: true,
+      tags: {},
     },
   });
 
   const createServerMutation = useCreateServer();
+  const watchedTags = watch('tags') || {};
 
   useEffect(() => {
     setPageTitle('Add Server');
@@ -57,18 +68,46 @@ const AddServer: React.FC = () => {
     ]);
   }, [setPageTitle, setBreadcrumbs]);
 
+  const addTag = () => {
+    if (tagKey.trim() && tagValue.trim()) {
+      const currentTags = getValues('tags') || {};
+      setValue('tags', {
+        ...currentTags,
+        [tagKey.trim()]: tagValue.trim(),
+      });
+      setTagKey('');
+      setTagValue('');
+    }
+  };
+
+  const removeTag = (key: string) => {
+    const currentTags = getValues('tags') || {};
+    const { [key]: removed, ...remaining } = currentTags;
+    setValue('tags', remaining);
+  };
+
   const onSubmit = async (data: ServerFormData) => {
     try {
       const serverData = {
         ...data,
         ssh_port: Number(data.ssh_port),
         connection_timeout: Number(data.connection_timeout),
-        max_retries: Number(data.max_retries),
+        connection_retries: Number(data.connection_retries),
         // Only include auth method that's selected
         ...(authMethod === 'password' 
-          ? { ssh_password: data.ssh_password, ssh_key_path: undefined }
-          : { ssh_key_path: data.ssh_key_path, ssh_password: undefined }
+          ? { 
+              ssh_password: data.ssh_password, 
+              ssh_key_path: undefined,
+              ssh_key_passphrase: undefined 
+            }
+          : { 
+              ssh_key_path: data.ssh_key_path,
+              ssh_key_passphrase: data.ssh_key_passphrase,
+              ssh_password: undefined 
+            }
         ),
+        // Clean up empty tags
+        tags: Object.keys(watchedTags).length > 0 ? watchedTags : undefined,
       };
 
       const result = await createServerMutation.mutateAsync(serverData);
@@ -226,17 +265,67 @@ const AddServer: React.FC = () => {
                     />
                   </FormField>
                 ) : (
-                  <FormField
-                    label="SSH Key Path"
-                    error={errors.ssh_key_path?.message}
-                    description="Path to SSH private key file"
-                  >
-                    <Input
-                      {...register('ssh_key_path')}
-                      placeholder="/home/user/.ssh/id_rsa"
-                    />
-                  </FormField>
+                  <>
+                    <FormField
+                      label="SSH Key Path"
+                      error={errors.ssh_key_path?.message}
+                      description="Path to SSH private key file"
+                    >
+                      <Input
+                        {...register('ssh_key_path')}
+                        placeholder="/home/user/.ssh/id_rsa"
+                      />
+                    </FormField>
+                    
+                    <FormField
+                      label="SSH Key Passphrase"
+                      error={errors.ssh_key_passphrase?.message}
+                      description="Passphrase for the SSH key (if encrypted)"
+                    >
+                      <Input
+                        type="password"
+                        {...register('ssh_key_passphrase')}
+                        placeholder="Enter key passphrase (optional)"
+                      />
+                    </FormField>
+                  </>
                 )}
+              </chakra.div>
+
+              {/* Management Settings */}
+              <chakra.div>
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
+                  Management Settings
+                </chakra.h3>
+                
+                <chakra.div display="flex" flexDirection="column" gap="4">
+                  <FormField
+                    label="Server Management"
+                    description="Control whether this server should be actively managed"
+                  >
+                    <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                      <chakra.input
+                        type="checkbox"
+                        {...register('is_enabled')}
+                      />
+                      <chakra.span fontSize="sm">Enable server management</chakra.span>
+                    </chakra.label>
+                  </FormField>
+
+                  <FormField
+                    label="Service Discovery"
+                    description="Automatically discover and monitor services on this server"
+                  >
+                    <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                      <chakra.input
+                        type="checkbox"
+                        {...register('auto_discover_services')}
+                      />
+                      <chakra.span fontSize="sm">Auto-discover services</chakra.span>
+                    </chakra.label>
+                  </FormField>
+                </chakra.div>
               </chakra.div>
 
               {/* Advanced Settings */}
@@ -260,17 +349,95 @@ const AddServer: React.FC = () => {
                   </FormField>
 
                   <FormField
-                    label="Max Retries"
-                    error={errors.max_retries?.message}
+                    label="Connection Retries"
+                    error={errors.connection_retries?.message}
                   >
                     <Input
                       type="number"
-                      {...register('max_retries', {
+                      {...register('connection_retries', {
                         min: { value: 0, message: 'Retries cannot be negative' }
                       })}
                     />
                   </FormField>
                 </chakra.div>
+              </chakra.div>
+
+              {/* Tags */}
+              <chakra.div>
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
+                  Tags
+                </chakra.h3>
+                
+                <FormField
+                  label="Add Tags"
+                  description="Key-value pairs for organizing and categorizing servers"
+                >
+                  <chakra.div display="flex" gap="3" mb="4">
+                    <Input
+                      placeholder="Key (e.g., environment)"
+                      value={tagKey}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagKey(e.target.value)}
+                      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && e.preventDefault()}
+                    />
+                    <Input
+                      placeholder="Value (e.g., production)"
+                      value={tagValue}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTagValue(e.target.value)}
+                      onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addTag();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={addTag}
+                      disabled={!tagKey.trim() || !tagValue.trim()}
+                    >
+                      Add
+                    </Button>
+                  </chakra.div>
+                </FormField>
+
+                {/* Display existing tags */}
+                {Object.keys(watchedTags).length > 0 && (
+                  <chakra.div>
+                    <chakra.p fontSize="sm" color="text.subtle" mb="3">Current Tags:</chakra.p>
+                    <chakra.div display="flex" flexWrap="wrap" gap="2">
+                      {Object.entries(watchedTags).map(([key, value]) => (
+                        <chakra.div
+                          key={key}
+                          display="flex"
+                          alignItems="center"
+                          gap="2"
+                          bg="bg.subtle"
+                          borderRadius="md"
+                          px="3"
+                          py="1"
+                          border="1px solid"
+                          borderColor="border"
+                        >
+                          <chakra.span fontSize="sm" color="text">
+                            <chakra.span fontWeight="medium">{key}:</chakra.span> {value}
+                          </chakra.span>
+                          <chakra.button
+                            type="button"
+                            onClick={() => removeTag(key)}
+                            color="text.subtle"
+                            _hover={{ color: 'negative' }}
+                            display="flex"
+                            alignItems="center"
+                          >
+                            <FiTrash2 size={12} />
+                          </chakra.button>
+                        </chakra.div>
+                      ))}
+                    </chakra.div>
+                  </chakra.div>
+                )}
               </chakra.div>
 
               {/* Form Actions */}

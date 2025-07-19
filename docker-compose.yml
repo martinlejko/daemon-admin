@@ -1,82 +1,72 @@
 services:
+  # Database
   postgres:
     image: postgres:16-alpine
-    container_name: owleyes-postgres
-    restart: unless-stopped
+    container_name: daemon-admin-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: owleyes
-      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: daemon_admin
+      POSTGRES_USER: daemon_admin
+      POSTGRES_PASSWORD: daemon_admin_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d owleyes"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD-SHELL", "pg_isready -U daemon_admin"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Backend API
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: owleyes-backend
-    restart: unless-stopped
+      target: development
+    container_name: daemon-admin-backend
     environment:
-      - ENVIRONMENT=development
-      - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=owleyes
+      DATABASE_URL: postgresql://daemon_admin:daemon_admin_password@postgres:5432/daemon_admin
+      DEBUG: "true"
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
-      - /app/__pycache__
     depends_on:
       postgres:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: ./backend
-          target: /app
-          ignore:
-            - __pycache__/
+    restart: unless-stopped
 
+  # Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: owleyes-frontend
-    restart: unless-stopped
+    container_name: daemon-admin-frontend
     ports:
-      - "3000:80"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - VITE_API_URL=http://localhost:8000
+      - "80:80"
     depends_on:
       - backend
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend
-          target: /app
-          ignore:
-            - node_modules/
-            - dist/
+    restart: unless-stopped
+
+  # Test Linux Server with systemd and SSH
+  test-server:
+    build:
+      context: ./test-server
+      dockerfile: Dockerfile
+    container_name: daemon-admin-test-server
+    hostname: test-linux-server
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - test_server_data:/var/lib/systemd
+    ports:
+      - "2222:22" # SSH access on port 2222
+    environment:
+      - SSH_USER=testuser
+      - SSH_PASSWORD=testpass123
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-    driver: local
-
-networks:
-  default:
-    name: owleyes-network
+  test_server_data:
