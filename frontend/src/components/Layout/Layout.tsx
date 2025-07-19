@@ -1,5 +1,5 @@
 /**
- * Main application layout component
+ * Modern application layout component with responsive design
  */
 
 import { chakra } from '@chakra-ui/react';
@@ -21,10 +21,10 @@ const Layout: React.FC = () => {
   const handleSidebarOpen = () => setSidebarOpen(true);
   const handleSidebarClose = () => setSidebarOpen(false);
 
-  const sidebarWidth = sidebarCollapsed ? '64px' : '256px';
+  const sidebarWidth = sidebarCollapsed ? '64px' : '280px';
 
   return (
-    <chakra.div h="100vh" overflow="hidden">
+    <chakra.div h="100vh" overflow="hidden" bg="bg">
       {/* Sidebar */}
       <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
 
@@ -34,18 +34,18 @@ const Layout: React.FC = () => {
         flexDirection="column"
         h="100vh"
         ml={{ base: '0', lg: sidebarWidth }}
-        transition="margin-left 0.2s"
+        transition="margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
       >
         {/* Header */}
         <Header onSidebarOpen={handleSidebarOpen} />
 
         {/* Page content */}
         <chakra.div
-          _dark={{ bg: 'gray.800' }}
-          bg="gray.50"
+          bg="bg.subtle"
           flex="1"
           overflow="auto"
           position="relative"
+          minH="0"
         >
           {/* Loading overlay */}
           {isLoading && (
@@ -60,32 +60,35 @@ const Layout: React.FC = () => {
               right="0"
               top="0"
               zIndex="50"
+              backdropFilter="blur(4px)"
             >
               <chakra.div
-                _dark={{ bg: 'gray.900' }}
                 alignItems="center"
-                bg="white"
-                borderRadius="lg"
+                bg="bg.surface"
+                borderRadius="xl"
                 boxShadow="lg"
                 display="flex"
                 flexDirection="column"
                 gap="4"
                 p="8"
+                border="1px solid"
+                borderColor="border.subtle"
               >
                 <chakra.div
                   animation="spin 1s linear infinite"
                   border="2px solid"
-                  borderColor="gray.200"
+                  borderColor="border.muted"
                   borderRadius="full"
-                  borderTopColor="blue.500"
+                  borderTopColor="accent"
                   h="8"
                   w="8"
                 />
                 {loadingMessage && (
                   <chakra.div
-                    _dark={{ color: 'gray.400' }}
-                    color="gray.600"
+                    color="text.subtle"
                     textAlign="center"
+                    fontSize="sm"
+                    fontWeight="medium"
                   >
                     {loadingMessage}
                   </chakra.div>

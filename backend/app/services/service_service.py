@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 
 import structlog
-from sqlalchemy import and_, desc, func, or_
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -29,8 +29,9 @@ class ServiceService:
     
     async def get_service(self, db: AsyncSession, service_id: int) -> Optional[ServiceResponse]:
         """Get a service by ID."""
-        query = db.query(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
-        service = await query.first()
+        query = select(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
+        result = await db.execute(query)
+        service = result.scalar_one_or_none()
         
         if not service:
             return None
@@ -49,7 +50,7 @@ class ServiceService:
         enabled_only: bool = False,
     ) -> Tuple[List[ServiceResponse], int]:
         """List services with pagination and filtering."""
-        query = db.query(Service).options(selectinload(Service.server))
+        query = select(Service).options(selectinload(Service.server))
         
         # Apply filters
         filters = []
@@ -78,13 +79,18 @@ class ServiceService:
             query = query.filter(and_(*filters))
         
         # Get total count
-        total = await query.count()
+        count_query = select(func.count(Service.id))
+        if filters:
+            count_query = count_query.filter(and_(*filters))
+        count_result = await db.execute(count_query)
+        total = count_result.scalar()
         
         # Apply pagination and ordering
         query = query.order_by(Service.name, desc(Service.updated_at))
         query = query.offset((page - 1) * per_page).limit(per_page)
         
-        services = await query.all()
+        result = await db.execute(query)
+        services = result.scalars().all()
         service_responses = [ServiceResponse.from_service(service) for service in services]
         
         return service_responses, total
@@ -96,8 +102,9 @@ class ServiceService:
         action: str
     ) -> ServiceControlResponse:
         """Control a service (start, stop, restart, etc.)."""
-        query = db.query(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
-        service = await query.first()
+        query = select(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
+        result = await db.execute(query)
+        service = result.scalar_one_or_none()
         
         if not service:
             raise ValueError(f"Service with ID {service_id} not found")
@@ -174,8 +181,9 @@ class ServiceService:
         lines: int = 100
     ) -> ServiceLogsResponse:
         """Get logs for a service."""
-        query = db.query(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
-        service = await query.first()
+        query = select(Service).options(selectinload(Service.server)).filter(Service.id == service_id)
+        result = await db.execute(query)
+        service = result.scalar_one_or_none()
         
         if not service:
             raise ValueError(f"Service with ID {service_id} not found")
@@ -256,8 +264,9 @@ class ServiceService:
         force_refresh: bool = False
     ) -> ServiceDiscoveryResponse:
         """Discover services on a server."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        query = select(Server).filter(Server.id == server_id)
+        result = await db.execute(query)
+        server = result.scalar_one_or_none()
         
         if not server:
             raise ValueError(f"Server with ID {server_id} not found")
@@ -277,7 +286,9 @@ class ServiceService:
         
         try:
             # Get current services from database
-            current_services = await db.query(Service).filter(Service.server_id == server_id).all()
+            current_services_query = select(Service).filter(Service.server_id == server_id)
+            current_services_result = await db.execute(current_services_query)
+            current_services = current_services_result.scalars().all()
             current_service_names = {service.name for service in current_services}
             
             # Discover services via SSH
@@ -394,27 +405,24 @@ class ServiceService:
         """Get service statistics overview."""
         try:
             # Count services by status
-            status_counts = await db.execute(
-                db.query(Service.status, func.count(Service.id))
-                .group_by(Service.status)
-                .all()
-            )
+            status_query = select(Service.status, func.count(Service.id)).group_by(Service.status)
+            status_result = await db.execute(status_query)
+            status_counts = status_result.all()
             
             services_by_status = {status.value: count for status, count in status_counts}
             total_services = sum(services_by_status.values())
             
             # Count services by server
-            server_counts = await db.execute(
-                db.query(Server.hostname, func.count(Service.id))
-                .join(Service, Service.server_id == Server.id)
-                .group_by(Server.hostname)
-                .all()
-            )
+            server_query = select(Server.hostname, func.count(Service.id)).join(Service, Service.server_id == Server.id).group_by(Server.hostname)
+            server_result = await db.execute(server_query)
+            server_counts = server_result.all()
             
             services_by_server = {hostname: count for hostname, count in server_counts}
             
             # Count timer services
-            timer_count = await db.query(Service).filter(Service.is_timer == True).count()
+            timer_query = select(func.count(Service.id)).filter(Service.is_timer == True)
+            timer_result = await db.execute(timer_query)
+            timer_count = timer_result.scalar()
             
             return ServiceStatsResponse(
                 total_services=total_services,

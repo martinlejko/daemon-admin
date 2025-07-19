@@ -8,6 +8,14 @@ import type React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import Dashboard from '@/pages/Dashboard';
+import Servers from '@/pages/Servers';
+import ServerDetail from '@/pages/ServerDetail';
+import AddServer from '@/pages/AddServer';
+import EditServer from '@/pages/EditServer';
+import Services from '@/pages/Services';
+import ServiceDetail from '@/pages/ServiceDetail';
+import Settings from '@/pages/Settings';
+import NotFound from '@/pages/NotFound';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -28,37 +36,20 @@ const App: React.FC = () => {
             <Route element={<Dashboard />} index />
 
             {/* Server routes */}
-            <Route
-              element={<div>Servers page - coming soon</div>}
-              path="servers"
-            />
-            <Route
-              element={<div>Add server page - coming soon</div>}
-              path="servers/new"
-            />
-            <Route
-              element={<div>Server details page - coming soon</div>}
-              path="servers/:id"
-            />
+            <Route element={<Servers />} path="servers" />
+            <Route element={<AddServer />} path="servers/new" />
+            <Route element={<ServerDetail />} path="servers/:id" />
+            <Route element={<EditServer />} path="servers/:id/edit" />
 
             {/* Service routes */}
-            <Route
-              element={<div>Services page - coming soon</div>}
-              path="services"
-            />
-            <Route
-              element={<div>Service details page - coming soon</div>}
-              path="services/:id"
-            />
+            <Route element={<Services />} path="services" />
+            <Route element={<ServiceDetail />} path="services/:id" />
 
             {/* Settings routes */}
-            <Route
-              element={<div>Settings page - coming soon</div>}
-              path="settings"
-            />
+            <Route element={<Settings />} path="settings" />
 
             {/* 404 route */}
-            <Route element={<div>Page not found</div>} path="*" />
+            <Route element={<NotFound />} path="*" />
           </Route>
         </Routes>
       </Router>

@@ -1,5 +1,5 @@
 /**
- * Application sidebar navigation component
+ * Modern sidebar navigation component with improved accessibility and design
  */
 
 import { chakra } from '@chakra-ui/react';
@@ -80,9 +80,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <chakra.div
-        _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-        bg="white"
-        borderColor="gray.200"
+        bg="bg.surface"
+        borderColor="border"
         borderRightWidth="1px"
         display="flex"
         flexDirection="column"
@@ -94,15 +93,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           base: isOpen ? 'translateX(0)' : 'translateX(-100%)',
           lg: 'translateX(0)',
         }}
-        transition="all 0.2s"
-        w={sidebarCollapsed ? '16' : '64'}
+        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+        w={sidebarCollapsed ? '16' : '70'}
         zIndex="20"
+        boxShadow={{ base: isOpen ? 'lg' : 'none', lg: 'sm' }}
       >
         {/* Header */}
         <chakra.div
           alignItems="center"
           borderBottomWidth="1px"
-          borderColor="gray.200"
+          borderColor="border"
           display="flex"
           h="16"
           justifyContent="space-between"
@@ -112,22 +112,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <chakra.div alignItems="center" display="flex" gap="3">
               <chakra.div
                 alignItems="center"
-                bg="blue.500"
-                borderRadius="md"
+                bg="accent"
+                borderRadius="lg"
                 display="flex"
-                h="8"
+                h="9"
                 justifyContent="center"
-                w="8"
+                w="9"
+                boxShadow="sm"
               >
-                <chakra.span color="white" fontSize="lg" fontWeight="bold">
+                <chakra.span color="white" fontSize="xl" fontWeight="bold">
                   O
                 </chakra.span>
               </chakra.div>
               <chakra.span
-                _dark={{ color: 'white' }}
-                color="gray.900"
-                fontSize="lg"
+                color="text"
+                fontSize="xl"
                 fontWeight="bold"
+                letterSpacing="tight"
               >
                 Owleyes
               </chakra.span>
@@ -137,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <chakra.div display="flex" gap="1">
             {/* Collapse button (desktop) */}
             <chakra.button
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              _hover={{ bg: 'bg.subtle' }}
               alignItems="center"
               aria-label={
                 sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
@@ -148,13 +149,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               justifyContent="center"
               onClick={toggleSidebarCollapsed}
               p="2"
+              color="text.subtle"
+              transition="all 0.2s"
             >
               {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
             </chakra.button>
 
             {/* Close button (mobile) */}
             <chakra.button
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              _hover={{ bg: 'bg.subtle' }}
               alignItems="center"
               aria-label="Close sidebar"
               bg="transparent"
@@ -163,6 +166,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               justifyContent="center"
               onClick={onClose}
               p="2"
+              color="text.subtle"
+              transition="all 0.2s"
             >
               <FiX />
             </chakra.button>
@@ -170,12 +175,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </chakra.div>
 
         {/* Navigation */}
-        <chakra.div
+        <chakra.nav
+          as="nav"
           display="flex"
           flex="1"
           flexDirection="column"
-          gap="1"
-          p={sidebarCollapsed ? '2' : '4'}
+          gap="2"
+          p={sidebarCollapsed ? '3' : '4'}
+          pt="6"
         >
           {navigationItems.map((item) => {
             const active = isActive(item.href);
@@ -184,24 +191,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             return (
               <Link key={item.href} to={item.href}>
                 <chakra.button
-                  _dark={{ color: active ? 'white' : 'gray.200' }}
                   _hover={{
-                    bg: active ? 'blue.600' : 'gray.100',
-                    _dark: { bg: active ? 'blue.600' : 'gray.800' },
+                    bg: active ? 'accent.emphasis' : 'bg.subtle',
+                    transform: 'translateY(-1px)',
                   }}
                   alignItems="center"
-                  bg={active ? 'blue.500' : 'transparent'}
-                  borderRadius="md"
-                  color={active ? 'white' : 'gray.700'}
+                  bg={active ? 'accent' : 'transparent'}
+                  borderRadius="lg"
+                  color={active ? 'white' : 'text.subtle'}
                   display="flex"
-                  fontWeight="medium"
+                  fontWeight={active ? 'semibold' : 'medium'}
+                  fontSize="sm"
                   gap="3"
-                  h="10"
+                  h="11"
                   justifyContent={sidebarCollapsed ? 'center' : 'flex-start'}
                   px={sidebarCollapsed ? '0' : '4'}
                   width="100%"
+                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                  position="relative"
+                  overflow="hidden"
                 >
-                  <Icon size={20} />
+                  {active && (
+                    <chakra.div
+                      position="absolute"
+                      left="0"
+                      top="0"
+                      bottom="0"
+                      width="3px"
+                      bg="white"
+                      borderRadius="0 2px 2px 0"
+                    />
+                  )}
+                  <Icon size={18} />
                   {!sidebarCollapsed && (
                     <>
                       <chakra.span flex="1" textAlign="left">
@@ -209,7 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       </chakra.span>
                       {item.badge && (
                         <chakra.span
-                          bg="red.500"
+                          bg="negative"
                           borderRadius="full"
                           color="white"
                           fontSize="xs"
@@ -217,6 +238,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           px="2"
                           py="1"
                           textAlign="center"
+                          fontWeight="semibold"
                         >
                           {item.badge}
                         </chakra.span>
@@ -227,18 +249,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </Link>
             );
           })}
-        </chakra.div>
+        </chakra.nav>
 
         {/* Footer */}
         {!sidebarCollapsed && (
           <>
-            <chakra.hr
-              _dark={{ borderColor: 'gray.700' }}
-              borderColor="gray.200"
-            />
+            <chakra.hr borderColor="border.subtle" />
             <chakra.div p="4">
-              <chakra.p color="gray.500" fontSize="xs" textAlign="center">
+              <chakra.p 
+                color="text.muted" 
+                fontSize="xs" 
+                textAlign="center"
+                fontWeight="medium"
+              >
                 Owleyes v1.0.0
+              </chakra.p>
+              <chakra.p 
+                color="text.muted" 
+                fontSize="xs" 
+                textAlign="center"
+                mt="1"
+              >
+                Server Management
               </chakra.p>
             </chakra.div>
           </>

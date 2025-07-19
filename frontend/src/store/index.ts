@@ -11,8 +11,6 @@ interface UIState {
   isSidebarOpen: boolean;
   sidebarCollapsed: boolean;
 
-  // Theme state
-  isDarkMode: boolean;
 
   // Layout state
   pageTitle: string;
@@ -39,9 +37,6 @@ interface UIActions {
   toggleSidebarCollapsed: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
 
-  // Theme actions
-  toggleDarkMode: () => void;
-  setDarkMode: (dark: boolean) => void;
 
   // Layout actions
   setPageTitle: (title: string) => void;
@@ -66,7 +61,6 @@ export const useUIStore = create<UIState & UIActions>()(
       // Initial state
       isSidebarOpen: true,
       sidebarCollapsed: false,
-      isDarkMode: false,
       pageTitle: 'Dashboard',
       breadcrumbs: [{ label: 'Dashboard' }],
       isLoading: false,
@@ -81,9 +75,6 @@ export const useUIStore = create<UIState & UIActions>()(
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
 
-      // Theme actions
-      toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
-      setDarkMode: (dark) => set({ isDarkMode: dark }),
 
       // Layout actions
       setPageTitle: (title) => set({ pageTitle: title }),
@@ -126,7 +117,6 @@ export const useUIStore = create<UIState & UIActions>()(
       // Only persist certain UI preferences
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
-        isDarkMode: state.isDarkMode,
       }),
     }
   )

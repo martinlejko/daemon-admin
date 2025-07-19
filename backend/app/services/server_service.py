@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple, Any
 
 import structlog
-from sqlalchemy import and_, desc, func, or_
+from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -72,8 +72,9 @@ class ServerService:
     
     async def get_server(self, db: AsyncSession, server_id: int) -> Optional[ServerResponse]:
         """Get a server by ID."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        stmt = select(Server).where(Server.id == server_id)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return None
@@ -82,8 +83,9 @@ class ServerService:
     
     async def get_server_by_hostname(self, db: AsyncSession, hostname: str) -> Optional[ServerResponse]:
         """Get a server by hostname."""
-        query = db.query(Server).filter(Server.hostname == hostname)
-        server = await query.first()
+        stmt = select(Server).where(Server.hostname == hostname)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return None
@@ -100,7 +102,8 @@ class ServerService:
         enabled_only: bool = False,
     ) -> Tuple[List[ServerResponse], int]:
         """List servers with pagination and filtering."""
-        query = db.query(Server)
+        # Build base statement
+        stmt = select(Server)
         
         # Apply filters
         filters = []
@@ -121,16 +124,21 @@ class ServerService:
             filters.append(Server.is_enabled == True)
         
         if filters:
-            query = query.filter(and_(*filters))
+            stmt = stmt.where(and_(*filters))
         
         # Get total count
-        total = await query.count()
+        count_stmt = select(func.count(Server.id))
+        if filters:
+            count_stmt = count_stmt.where(and_(*filters))
+        count_result = await db.execute(count_stmt)
+        total = count_result.scalar()
         
         # Apply pagination and ordering
-        query = query.order_by(desc(Server.updated_at))
-        query = query.offset((page - 1) * per_page).limit(per_page)
+        stmt = stmt.order_by(desc(Server.updated_at))
+        stmt = stmt.offset((page - 1) * per_page).limit(per_page)
         
-        servers = await query.all()
+        result = await db.execute(stmt)
+        servers = result.scalars().all()
         server_responses = [ServerResponse.from_server(server) for server in servers]
         
         return server_responses, total
@@ -142,8 +150,9 @@ class ServerService:
         server_data: ServerUpdateRequest
     ) -> Optional[ServerResponse]:
         """Update an existing server."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        stmt = select(Server).where(Server.id == server_id)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return None
@@ -184,8 +193,9 @@ class ServerService:
     
     async def delete_server(self, db: AsyncSession, server_id: int) -> bool:
         """Delete a server and all its services."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        stmt = select(Server).where(Server.id == server_id)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return False
@@ -205,8 +215,9 @@ class ServerService:
     
     async def test_connection(self, db: AsyncSession, server_id: int) -> Tuple[bool, str, Optional[int]]:
         """Test SSH connection to a server."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        stmt = select(Server).where(Server.id == server_id)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return False, "Server not found", None
@@ -253,8 +264,9 @@ class ServerService:
     
     async def gather_system_info(self, db: AsyncSession, server_id: int) -> Optional[ServerSystemInfoResponse]:
         """Gather system information from a server."""
-        query = db.query(Server).filter(Server.id == server_id)
-        server = await query.first()
+        stmt = select(Server).where(Server.id == server_id)
+        result = await db.execute(stmt)
+        server = result.scalar_one_or_none()
         
         if not server:
             return None
@@ -305,11 +317,9 @@ class ServerService:
         """Get server statistics overview."""
         try:
             # Count servers by status
-            status_counts = await db.execute(
-                db.query(Server.status, func.count(Server.id))
-                .group_by(Server.status)
-                .all()
-            )
+            stmt = select(Server.status, func.count(Server.id)).group_by(Server.status)
+            result = await db.execute(stmt)
+            status_counts = result.all()
             
             servers_by_status = {status.value: count for status, count in status_counts}
             total_servers = sum(servers_by_status.values())

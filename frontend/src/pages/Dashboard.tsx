@@ -57,69 +57,83 @@ const Dashboard: React.FC = () => {
   const hasError = serverStatsError || serviceStatsError || healthError;
 
   return (
-    <chakra.div p="6">
+    <chakra.div p="8" bg="bg.subtle" minH="100vh">
       <chakra.div
         alignItems="stretch"
         display="flex"
         flexDirection="column"
-        gap="6"
+        gap="8"
+        maxW="7xl"
+        mx="auto"
       >
         {/* Header */}
-        <chakra.div display="flex" justifyContent="space-between">
+        <chakra.div 
+          display="flex" 
+          justifyContent="space-between"
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          flexDirection={{ base: 'column', md: 'row' }}
+          gap="4"
+        >
           <chakra.div
             alignItems="flex-start"
             display="flex"
             flexDirection="column"
-            gap="1"
+            gap="2"
           >
             <chakra.h1
-              _dark={{ color: 'white' }}
-              color="gray.900"
-              fontSize="2xl"
+              color="text"
+              fontSize="3xl"
               fontWeight="bold"
+              letterSpacing="tight"
             >
               System Overview
             </chakra.h1>
-            <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
+            <chakra.p color="text.subtle" fontSize="lg">
               Monitor your servers and services at a glance
             </chakra.p>
           </chakra.div>
 
-          <chakra.div display="flex" gap="2">
+          <chakra.div display="flex" gap="3">
             <chakra.button
               _disabled={{ opacity: 0.5 }}
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              _hover={{ bg: 'bg.subtle', transform: 'translateY(-1px)' }}
               alignItems="center"
               aria-label="Refresh dashboard"
-              bg="transparent"
-              borderColor="gray.300"
-              borderRadius="md"
+              bg="bg.surface"
+              borderColor="border"
+              borderRadius="lg"
               borderWidth="1px"
               disabled={isLoading}
               display="flex"
               justifyContent="center"
               onClick={handleRefresh}
-              p="2"
+              p="3"
+              boxShadow="sm"
+              transition="all 0.2s"
+              color="text.subtle"
             >
               <chakra.div
                 animation={isLoading ? 'spin 1s linear infinite' : undefined}
               >
-                <FiRefreshCw />
+                <FiRefreshCw size={18} />
               </chakra.div>
             </chakra.button>
             <Link to="/servers/new">
               <chakra.button
-                _hover={{ bg: 'blue.600' }}
+                _hover={{ bg: 'accent.emphasis', transform: 'translateY(-1px)' }}
                 alignItems="center"
-                bg="blue.500"
-                borderRadius="md"
+                bg="accent"
+                borderRadius="lg"
                 color="white"
                 display="flex"
                 gap="2"
-                px="4"
-                py="2"
+                px="6"
+                py="3"
+                fontWeight="semibold"
+                boxShadow="sm"
+                transition="all 0.2s"
               >
-                <FiPlus />
+                <FiPlus size={18} />
                 <chakra.span>Add Server</chakra.span>
               </chakra.button>
             </Link>
@@ -129,26 +143,33 @@ const Dashboard: React.FC = () => {
         {/* Health Status */}
         {healthError && (
           <chakra.div
-            _dark={{ bg: 'red.900', borderColor: 'red.700' }}
             alignItems="center"
-            bg="red.50"
+            bg="negative.subtle"
             border="1px solid"
-            borderColor="red.200"
-            borderRadius="md"
+            borderColor="negative.muted"
+            borderRadius="xl"
             display="flex"
-            gap="3"
-            p="4"
+            gap="4"
+            p="6"
+            boxShadow="sm"
           >
-            <FiXCircle color="var(--chakra-colors-red-500)" />
+            <chakra.div
+              bg="negative"
+              borderRadius="full"
+              p="2"
+              color="white"
+            >
+              <FiXCircle size={20} />
+            </chakra.div>
             <chakra.div>
               <chakra.h3
-                _dark={{ color: 'red.200' }}
-                color="red.800"
+                color="negative.emphasis"
                 fontWeight="semibold"
+                fontSize="lg"
               >
                 API Connection Error
               </chakra.h3>
-              <chakra.p _dark={{ color: 'red.300' }} color="red.700">
+              <chakra.p color="negative" fontSize="sm" mt="1">
                 Unable to connect to the Owleyes API. Please check your
                 connection.
               </chakra.p>
@@ -159,31 +180,36 @@ const Dashboard: React.FC = () => {
         {/* Loading State */}
         {isLoading && !serverStats && !serviceStats && (
           <chakra.div
-            _dark={{ bg: 'gray.900' }}
-            bg="white"
-            borderRadius="lg"
-            boxShadow="sm"
-            p="8"
+            bg="bg.surface"
+            borderRadius="xl"
+            boxShadow="md"
+            p="12"
+            border="1px solid"
+            borderColor="border.subtle"
           >
             <chakra.div
               alignItems="center"
               display="flex"
               flexDirection="column"
-              gap="4"
-              py="8"
+              gap="6"
             >
               <chakra.div
                 animation="spin 1s linear infinite"
-                border="2px solid"
-                borderColor="gray.200"
+                border="3px solid"
+                borderColor="border.muted"
                 borderRadius="full"
-                borderTopColor="blue.500"
-                h="12"
-                w="12"
+                borderTopColor="accent"
+                h="16"
+                w="16"
               />
-              <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
-                Loading dashboard data...
-              </chakra.p>
+              <chakra.div textAlign="center">
+                <chakra.p color="text" fontWeight="semibold" fontSize="lg">
+                  Loading dashboard data...
+                </chakra.p>
+                <chakra.p color="text.subtle" fontSize="sm" mt="1">
+                  Please wait while we gather your system information
+                </chakra.p>
+              </chakra.div>
             </chakra.div>
           </chakra.div>
         )}
@@ -195,7 +221,7 @@ const Dashboard: React.FC = () => {
             gap="6"
             gridTemplateColumns={{
               base: '1fr',
-              md: 'repeat(2, 1fr)',
+              sm: 'repeat(2, 1fr)',
               lg: 'repeat(4, 1fr)',
             }}
           >
@@ -203,11 +229,14 @@ const Dashboard: React.FC = () => {
             {serverStats && (
               <>
                 <chakra.div
-                  _dark={{ bg: 'gray.900' }}
-                  bg="white"
-                  borderRadius="lg"
-                  boxShadow="sm"
+                  bg="bg.surface"
+                  borderRadius="xl"
+                  boxShadow="md"
                   p="6"
+                  border="1px solid"
+                  borderColor="border.subtle"
+                  _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+                  transition="all 0.2s"
                 >
                   <chakra.div
                     alignItems="flex-start"
@@ -218,51 +247,50 @@ const Dashboard: React.FC = () => {
                       alignItems="flex-start"
                       display="flex"
                       flexDirection="column"
-                      gap="1"
+                      gap="2"
                     >
                       <chakra.p
-                        _dark={{ color: 'gray.400' }}
-                        color="gray.600"
+                        color="text.subtle"
                         fontSize="sm"
+                        fontWeight="medium"
+                        textTransform="uppercase"
+                        letterSpacing="wide"
                       >
                         Total Servers
                       </chakra.p>
-                      <chakra.p fontSize="2xl" fontWeight="bold">
+                      <chakra.p fontSize="3xl" fontWeight="bold" color="text">
                         {serverStats.total_servers}
                       </chakra.p>
                     </chakra.div>
                     <chakra.div
-                      _dark={{ bg: 'blue.900' }}
-                      bg="blue.50"
-                      borderRadius="md"
-                      p="2"
+                      bg="accent.subtle"
+                      borderRadius="lg"
+                      p="3"
+                      color="accent"
                     >
-                      <FiServer
-                        color="var(--chakra-colors-blue-500)"
-                        size={20}
-                      />
+                      <FiServer size={24} />
                     </chakra.div>
                   </chakra.div>
-                  <chakra.div display="flex" gap="2" mt="3">
+                  <chakra.div display="flex" gap="2" mt="4">
                     <chakra.span
-                      _dark={{ bg: 'green.900', color: 'green.200' }}
-                      bg="green.100"
+                      bg="positive.muted"
                       borderRadius="full"
-                      color="green.800"
+                      color="positive.emphasis"
                       fontSize="xs"
-                      px="2"
+                      fontWeight="semibold"
+                      px="3"
                       py="1"
                     >
                       {serverStats.online_servers} online
                     </chakra.span>
                     {serverStats.offline_servers > 0 && (
                       <chakra.span
-                        _dark={{ bg: 'gray.700', color: 'gray.200' }}
-                        bg="gray.100"
+                        bg="text.muted"
                         borderRadius="full"
-                        color="gray.800"
+                        color="white"
                         fontSize="xs"
-                        px="2"
+                        fontWeight="semibold"
+                        px="3"
                         py="1"
                       >
                         {serverStats.offline_servers} offline

@@ -15,6 +15,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useHealthCheck } from '@/hooks/useApi';
 import { useUIStore } from '@/store';
+import { useTheme } from '@/hooks/useTheme';
 
 interface HeaderProps {
   onSidebarOpen: () => void;
@@ -22,13 +23,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
   const {
-    isDarkMode,
-    toggleDarkMode,
     pageTitle,
     breadcrumbs,
     notifications,
     clearNotifications,
   } = useUIStore();
+  
+  const { isDark, toggleTheme } = useTheme();
 
   const { refetch: refetchHealth, isFetching: isRefreshing } = useHealthCheck();
 
@@ -40,20 +41,23 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
 
   return (
     <chakra.div
-      _dark={{ bg: 'gray.900', borderColor: 'gray.700' }}
-      bg="white"
+      bg="bg.surface"
       borderBottomWidth="1px"
-      borderColor="gray.200"
+      borderColor="border"
       h="16"
       px="6"
       py="4"
+      backdropFilter="blur(8px)"
+      position="sticky"
+      top="0"
+      zIndex="sticky"
     >
       <chakra.div display="flex" h="full" justifyContent="space-between">
         {/* Left side */}
         <chakra.div alignItems="center" display="flex" gap="4">
           {/* Mobile menu button */}
           <chakra.button
-            _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+            _hover={{ bg: 'bg.subtle' }}
             alignItems="center"
             aria-label="Open navigation menu"
             bg="transparent"
@@ -62,6 +66,8 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
             justifyContent="center"
             onClick={onSidebarOpen}
             p="2"
+            color="text.subtle"
+            transition="all 0.2s"
           >
             <FiMenu />
           </chakra.button>
@@ -69,8 +75,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
           {/* Page title and breadcrumbs */}
           <chakra.div>
             <chakra.h1
-              _dark={{ color: 'white' }}
-              color="gray.900"
+              color="text"
               fontSize="lg"
               fontWeight="semibold"
             >
@@ -79,7 +84,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
             {breadcrumbs.length > 1 && (
               <chakra.nav
                 alignItems="center"
-                color="gray.500"
+                color="text.subtle"
                 display="flex"
                 fontSize="sm"
                 gap="1"
@@ -94,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
                   >
                     {crumb.href ? (
                       <Link to={crumb.href}>
-                        <chakra.span _hover={{ color: 'blue.500' }}>
+                        <chakra.span _hover={{ color: 'accent' }} transition="all 0.2s">
                           {crumb.label}
                         </chakra.span>
                       </Link>
@@ -170,19 +175,19 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
 
           {/* Theme toggle */}
           <chakra.button
-            _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+            _hover={{ bg: 'bg.subtle' }}
             alignItems="center"
-            aria-label={
-              isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'
-            }
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             bg="transparent"
             borderRadius="md"
             display="flex"
             justifyContent="center"
-            onClick={toggleDarkMode}
+            onClick={toggleTheme}
             p="2"
+            color="text.subtle"
+            transition="all 0.2s"
           >
-            {isDarkMode ? <FiSun /> : <FiMoon />}
+            {isDark ? <FiSun /> : <FiMoon />}
           </chakra.button>
 
           {/* Settings menu */}
