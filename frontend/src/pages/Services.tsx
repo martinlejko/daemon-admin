@@ -2,43 +2,46 @@
  * Services list page - view and manage all services
  */
 
-import { useEffect, useState } from 'react';
 import { chakra } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import {
   FiActivity,
-  FiRefreshCw,
-  FiSearch,
-  FiFilter,
-  FiPlay,
-  FiPause,
-  FiRotateCcw,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiClock,
   FiEye,
   FiFileText,
+  FiFilter,
+  FiPause,
+  FiPlay,
+  FiRefreshCw,
+  FiRotateCcw,
+  FiSearch,
   FiServer,
-  FiClock,
-  FiCheckCircle,
   FiXCircle,
-  FiAlertCircle,
 } from 'react-icons/fi';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useUIStore, useServiceStore } from '@/store';
-import { useServices, useControlService, useServiceLogs } from '@/hooks/useApi';
-import { ServiceStatus, ServiceType, type Service } from '@/types';
+import { useControlService, useServiceLogs, useServices } from '@/hooks/useApi';
+import { useServiceStore, useUIStore } from '@/store';
+import { type Service, ServiceStatus, ServiceType } from '@/types';
 import { formatRelativeTime, getServiceStatusColor } from '@/utils';
 
 const Services: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { setPageTitle, setBreadcrumbs, addNotification } = useUIStore();
-  const { serviceFilters, setServiceFilters, clearServiceFilters } = useServiceStore();
-  
+  const { serviceFilters, setServiceFilters, clearServiceFilters } =
+    useServiceStore();
+
   const [searchTerm, setSearchTerm] = useState(serviceFilters.search || '');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
   // Get server_id from URL params if present
   const serverIdFromUrl = searchParams.get('server_id');
-  const currentServerId = serverIdFromUrl ? parseInt(serverIdFromUrl, 10) : serviceFilters.server_id;
+  const currentServerId = serverIdFromUrl
+    ? Number.parseInt(serverIdFromUrl, 10)
+    : serviceFilters.server_id;
 
   const {
     data: servicesData,
@@ -60,16 +63,19 @@ const Services: React.FC = () => {
 
   useEffect(() => {
     setPageTitle('Services');
-    setBreadcrumbs([
-      { label: 'Dashboard', href: '/' },
-      { label: 'Services' },
-    ]);
+    setBreadcrumbs([{ label: 'Dashboard', href: '/' }, { label: 'Services' }]);
 
     // Set server filter from URL params
     if (serverIdFromUrl && !serviceFilters.server_id) {
-      setServiceFilters({ server_id: parseInt(serverIdFromUrl, 10) });
+      setServiceFilters({ server_id: Number.parseInt(serverIdFromUrl, 10) });
     }
-  }, [setPageTitle, setBreadcrumbs, serverIdFromUrl, serviceFilters.server_id, setServiceFilters]);
+  }, [
+    setPageTitle,
+    setBreadcrumbs,
+    serverIdFromUrl,
+    serviceFilters.server_id,
+    setServiceFilters,
+  ]);
 
   const handleSearch = () => {
     setServiceFilters({ search: searchTerm });
@@ -84,18 +90,21 @@ const Services: React.FC = () => {
     navigate('/services', { replace: true });
   };
 
-  const handleServiceControl = async (service: Service, action: 'start' | 'stop' | 'restart') => {
+  const handleServiceControl = async (
+    service: Service,
+    action: 'start' | 'stop' | 'restart'
+  ) => {
     try {
       const result = await controlServiceMutation.mutateAsync({
         serviceId: service.id,
         action,
       });
-      
+
       addNotification({
         type: result.success ? 'success' : 'error',
         message: result.message,
       });
-      
+
       if (result.success) {
         refetch();
       }
@@ -113,11 +122,11 @@ const Services: React.FC = () => {
         serviceId: service.id,
         lines: 100,
       });
-      
+
       // For now, just show success/error - in a real app you'd open a modal or navigate to logs page
       addNotification({
         type: result.success ? 'info' : 'error',
-        message: result.success 
+        message: result.success
           ? `Retrieved ${result.lines_returned} log lines for ${service.name}`
           : `Failed to retrieve logs: ${result.logs}`,
       });
@@ -132,11 +141,11 @@ const Services: React.FC = () => {
   const getStatusIcon = (service: Service) => {
     if (service.is_active) {
       return <FiCheckCircle color="var(--chakra-colors-green-500)" />;
-    } else if (service.is_failed) {
-      return <FiXCircle color="var(--chakra-colors-red-500)" />;
-    } else {
-      return <FiAlertCircle color="var(--chakra-colors-gray-500)" />;
     }
+    if (service.is_failed) {
+      return <FiXCircle color="var(--chakra-colors-red-500)" />;
+    }
+    return <FiAlertCircle color="var(--chakra-colors-gray-500)" />;
   };
 
   const getServiceTypeIcon = (type: ServiceType) => {
@@ -154,32 +163,48 @@ const Services: React.FC = () => {
 
   return (
     <chakra.div p="6">
-      <chakra.div display="flex" flexDirection="column" gap="6" alignItems="stretch">
+      <chakra.div
+        alignItems="stretch"
+        display="flex"
+        flexDirection="column"
+        gap="6"
+      >
         {/* Header */}
-        <chakra.div display="flex" justifyContent="space-between" alignItems="flex-start">
+        <chakra.div
+          alignItems="flex-start"
+          display="flex"
+          justifyContent="space-between"
+        >
           <chakra.div>
-            <chakra.h1 fontSize="2xl" fontWeight="bold" color="gray.900" _dark={{ color: 'white' }}>
+            <chakra.h1
+              _dark={{ color: 'white' }}
+              color="gray.900"
+              fontSize="2xl"
+              fontWeight="bold"
+            >
               Services
             </chakra.h1>
-            <chakra.p color="gray.600" _dark={{ color: 'gray.400' }}>
+            <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
               Monitor and control systemd services across your servers
             </chakra.p>
           </chakra.div>
 
           <chakra.div display="flex" gap="2">
             <chakra.button
+              _disabled={{ opacity: 0.5 }}
+              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
               aria-label="Refresh services"
+              bg="transparent"
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={isLoading}
               onClick={() => refetch()}
               p="2"
-              bg="transparent"
-              borderWidth="1px"
-              borderColor="gray.300"
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
-              borderRadius="md"
-              disabled={isLoading}
-              _disabled={{ opacity: 0.5 }}
             >
-              <chakra.div animation={isLoading ? 'spin 1s linear infinite' : undefined}>
+              <chakra.div
+                animation={isLoading ? 'spin 1s linear infinite' : undefined}
+              >
                 <FiRefreshCw />
               </chakra.div>
             </chakra.button>
@@ -188,70 +213,81 @@ const Services: React.FC = () => {
 
         {/* Search and Filters */}
         <chakra.div
-          bg="white"
           _dark={{ bg: 'gray.900' }}
+          bg="white"
           borderRadius="lg"
           boxShadow="sm"
           p="4"
         >
-          <chakra.div display="flex" gap="4" alignItems="center" flexWrap="wrap">
+          <chakra.div
+            alignItems="center"
+            display="flex"
+            flexWrap="wrap"
+            gap="4"
+          >
             {/* Search */}
-            <chakra.div display="flex" gap="2" flex="1" minW="300px">
+            <chakra.div display="flex" flex="1" gap="2" minW="300px">
               <chakra.input
-                placeholder="Search services..."
-                value={searchTerm}
+                _dark={{ borderColor: 'gray.600' }}
+                borderColor="gray.300"
+                borderRadius="md"
+                borderWidth="1px"
+                flex="1"
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search services..."
                 px="3"
                 py="2"
-                borderWidth="1px"
-                borderColor="gray.300"
-                _dark={{ borderColor: 'gray.600' }}
-                borderRadius="md"
-                flex="1"
+                value={searchTerm}
               />
               <chakra.button
-                onClick={handleSearch}
+                _hover={{ bg: 'blue.600' }}
+                alignItems="center"
                 bg="blue.500"
+                borderRadius="md"
                 color="white"
+                display="flex"
+                gap="2"
+                onClick={handleSearch}
                 px="4"
                 py="2"
-                borderRadius="md"
-                _hover={{ bg: 'blue.600' }}
-                display="flex"
-                alignItems="center"
-                gap="2"
               >
                 <FiSearch />
-                <chakra.span display={{ base: 'none', md: 'inline' }}>Search</chakra.span>
+                <chakra.span display={{ base: 'none', md: 'inline' }}>
+                  Search
+                </chakra.span>
               </chakra.button>
             </chakra.div>
 
             {/* Filter Toggle */}
             <chakra.button
-              onClick={() => setShowFilters(!showFilters)}
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              alignItems="center"
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              display="flex"
+              gap="2"
+              onClick={() => setShowFilters(!showFilters)}
               px="4"
               py="2"
-              borderRadius="md"
-              display="flex"
-              alignItems="center"
-              gap="2"
             >
               <FiFilter />
               <chakra.span>Filters</chakra.span>
             </chakra.button>
 
             {/* Clear Filters */}
-            {(serviceFilters.search || serviceFilters.server_id || serviceFilters.status_filter || serviceFilters.service_type || serviceFilters.enabled_only) && (
+            {(serviceFilters.search ||
+              serviceFilters.server_id ||
+              serviceFilters.status_filter ||
+              serviceFilters.service_type ||
+              serviceFilters.enabled_only) && (
               <chakra.button
-                onClick={handleClearFilters}
-                color="red.500"
                 _hover={{ color: 'red.600' }}
+                color="red.500"
                 fontSize="sm"
+                onClick={handleClearFilters}
               >
                 Clear Filters
               </chakra.button>
@@ -260,52 +296,72 @@ const Services: React.FC = () => {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <chakra.div 
-              mt="4" 
-              pt="4" 
-              borderTopWidth="1px" 
-              borderColor="gray.200" 
+            <chakra.div
               _dark={{ borderColor: 'gray.700' }}
-              display="flex" 
-              gap="4" 
+              borderColor="gray.200"
+              borderTopWidth="1px"
+              display="flex"
               flexWrap="wrap"
+              gap="4"
+              mt="4"
+              pt="4"
             >
               <chakra.div>
-                <chakra.label fontSize="sm" fontWeight="medium" mb="1" display="block">
+                <chakra.label
+                  display="block"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  mb="1"
+                >
                   Status
                 </chakra.label>
                 <chakra.select
-                  value={serviceFilters.status_filter || ''}
-                  onChange={(e) => setServiceFilters({ status_filter: e.target.value || undefined })}
+                  _dark={{ borderColor: 'gray.600' }}
+                  borderColor="gray.300"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  onChange={(e) =>
+                    setServiceFilters({
+                      status_filter: e.target.value || undefined,
+                    })
+                  }
                   px="3"
                   py="2"
-                  borderWidth="1px"
-                  borderColor="gray.300"
-                  _dark={{ borderColor: 'gray.600' }}
-                  borderRadius="md"
+                  value={serviceFilters.status_filter || ''}
                 >
                   <option value="">All statuses</option>
                   <option value={ServiceStatus.ACTIVE}>Active</option>
                   <option value={ServiceStatus.INACTIVE}>Inactive</option>
                   <option value={ServiceStatus.FAILED}>Failed</option>
                   <option value={ServiceStatus.ACTIVATING}>Activating</option>
-                  <option value={ServiceStatus.DEACTIVATING}>Deactivating</option>
+                  <option value={ServiceStatus.DEACTIVATING}>
+                    Deactivating
+                  </option>
                 </chakra.select>
               </chakra.div>
 
               <chakra.div>
-                <chakra.label fontSize="sm" fontWeight="medium" mb="1" display="block">
+                <chakra.label
+                  display="block"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  mb="1"
+                >
                   Type
                 </chakra.label>
                 <chakra.select
-                  value={serviceFilters.service_type || ''}
-                  onChange={(e) => setServiceFilters({ service_type: e.target.value || undefined })}
+                  _dark={{ borderColor: 'gray.600' }}
+                  borderColor="gray.300"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  onChange={(e) =>
+                    setServiceFilters({
+                      service_type: e.target.value || undefined,
+                    })
+                  }
                   px="3"
                   py="2"
-                  borderWidth="1px"
-                  borderColor="gray.300"
-                  _dark={{ borderColor: 'gray.600' }}
-                  borderRadius="md"
+                  value={serviceFilters.service_type || ''}
                 >
                   <option value="">All types</option>
                   <option value={ServiceType.SYSTEMD}>Systemd</option>
@@ -315,14 +371,21 @@ const Services: React.FC = () => {
               </chakra.div>
 
               <chakra.div>
-                <chakra.label fontSize="sm" fontWeight="medium" mb="1" display="block">
+                <chakra.label
+                  display="block"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  mb="1"
+                >
                   Options
                 </chakra.label>
-                <chakra.label display="flex" alignItems="center" gap="2">
+                <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
+                    checked={serviceFilters.enabled_only}
+                    onChange={(e) =>
+                      setServiceFilters({ enabled_only: e.target.checked })
+                    }
                     type="checkbox"
-                    checked={serviceFilters.enabled_only || false}
-                    onChange={(e) => setServiceFilters({ enabled_only: e.target.checked })}
                   />
                   <chakra.span fontSize="sm">Enabled only</chakra.span>
                 </chakra.label>
@@ -334,17 +397,21 @@ const Services: React.FC = () => {
         {/* Error State */}
         {error && (
           <chakra.div
-            bg="red.50"
             _dark={{ bg: 'red.900', borderColor: 'red.700' }}
+            bg="red.50"
             border="1px solid"
             borderColor="red.200"
             borderRadius="md"
             p="4"
           >
-            <chakra.h3 fontWeight="semibold" color="red.800" _dark={{ color: 'red.200' }}>
+            <chakra.h3
+              _dark={{ color: 'red.200' }}
+              color="red.800"
+              fontWeight="semibold"
+            >
               Error loading services
             </chakra.h3>
-            <chakra.p color="red.700" _dark={{ color: 'red.300' }}>
+            <chakra.p _dark={{ color: 'red.300' }} color="red.700">
               {error.message || 'An unknown error occurred'}
             </chakra.p>
           </chakra.div>
@@ -353,23 +420,28 @@ const Services: React.FC = () => {
         {/* Loading State */}
         {isLoading && !servicesData && (
           <chakra.div
-            bg="white"
             _dark={{ bg: 'gray.900' }}
+            bg="white"
             borderRadius="lg"
             boxShadow="sm"
             p="8"
           >
-            <chakra.div display="flex" flexDirection="column" alignItems="center" gap="4">
+            <chakra.div
+              alignItems="center"
+              display="flex"
+              flexDirection="column"
+              gap="4"
+            >
               <chakra.div
-                w="8"
-                h="8"
+                animation="spin 1s linear infinite"
                 border="2px solid"
                 borderColor="gray.200"
-                borderTopColor="blue.500"
                 borderRadius="full"
-                animation="spin 1s linear infinite"
+                borderTopColor="blue.500"
+                h="8"
+                w="8"
               />
-              <chakra.p color="gray.600" _dark={{ color: 'gray.400' }}>
+              <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
                 Loading services...
               </chakra.p>
             </chakra.div>
@@ -379,31 +451,39 @@ const Services: React.FC = () => {
         {/* Services List */}
         {servicesData && (
           <chakra.div
-            bg="white"
             _dark={{ bg: 'gray.900' }}
+            bg="white"
             borderRadius="lg"
             boxShadow="sm"
             overflow="hidden"
           >
             {servicesData.services.length === 0 ? (
               <chakra.div p="8" textAlign="center">
-                <FiActivity size={48} color="var(--chakra-colors-gray-400)" style={{ margin: '0 auto 16px' }} />
+                <FiActivity
+                  color="var(--chakra-colors-gray-400)"
+                  size={48}
+                  style={{ margin: '0 auto 16px' }}
+                />
                 <chakra.h3 fontSize="lg" fontWeight="semibold" mb="2">
                   No services found
                 </chakra.h3>
-                <chakra.p color="gray.600" _dark={{ color: 'gray.400' }} mb="4">
-                  {serviceFilters.search || serviceFilters.server_id || serviceFilters.status_filter || serviceFilters.service_type || serviceFilters.enabled_only
+                <chakra.p _dark={{ color: 'gray.400' }} color="gray.600" mb="4">
+                  {serviceFilters.search ||
+                  serviceFilters.server_id ||
+                  serviceFilters.status_filter ||
+                  serviceFilters.service_type ||
+                  serviceFilters.enabled_only
                     ? 'No services match your current filters.'
                     : 'No services are currently being monitored.'}
                 </chakra.p>
                 <Link to="/servers">
                   <chakra.button
+                    _hover={{ bg: 'blue.600' }}
                     bg="blue.500"
+                    borderRadius="md"
                     color="white"
                     px="4"
                     py="2"
-                    borderRadius="md"
-                    _hover={{ bg: 'blue.600' }}
                   >
                     Manage Servers
                   </chakra.button>
@@ -413,19 +493,17 @@ const Services: React.FC = () => {
               <>
                 {/* Table Header */}
                 <chakra.div
-                  display="grid"
-                  gridTemplateColumns="1fr 100px 120px 150px 120px 140px"
-                  gap="4"
-                  p="4"
+                  _dark={{ borderColor: 'gray.700', bg: 'gray.800', color: 'gray.400' }}
+                  bg="gray.50"
                   borderBottomWidth="1px"
                   borderColor="gray.200"
-                  _dark={{ borderColor: 'gray.700' }}
-                  bg="gray.50"
-                  _dark={{ bg: 'gray.800' }}
-                  fontWeight="semibold"
-                  fontSize="sm"
                   color="gray.600"
-                  _dark={{ color: 'gray.400' }}
+                  display="grid"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  gap="4"
+                  gridTemplateColumns="1fr 100px 120px 150px 120px 140px"
+                  p="4"
                 >
                   <chakra.div>Service</chakra.div>
                   <chakra.div>Type</chakra.div>
@@ -438,30 +516,30 @@ const Services: React.FC = () => {
                 {/* Table Rows */}
                 {servicesData.services.map((service) => (
                   <chakra.div
-                    key={service.id}
-                    display="grid"
-                    gridTemplateColumns="1fr 100px 120px 150px 120px 140px"
-                    gap="4"
-                    p="4"
-                    borderBottomWidth="1px"
-                    borderColor="gray.200"
                     _dark={{ borderColor: 'gray.700' }}
                     _hover={{ bg: 'gray.50', _dark: { bg: 'gray.800' } }}
                     alignItems="center"
+                    borderBottomWidth="1px"
+                    borderColor="gray.200"
+                    display="grid"
+                    gap="4"
+                    gridTemplateColumns="1fr 100px 120px 150px 120px 140px"
+                    key={service.id}
+                    p="4"
                   >
                     {/* Service Info */}
                     <chakra.div>
-                      <chakra.div display="flex" alignItems="center" gap="3">
+                      <chakra.div alignItems="center" display="flex" gap="3">
                         {getStatusIcon(service)}
                         <chakra.div>
-                          <chakra.h4 fontWeight="medium" fontSize="sm">
+                          <chakra.h4 fontSize="sm" fontWeight="medium">
                             {service.display_name || service.name}
                           </chakra.h4>
-                          <chakra.p fontSize="xs" color="gray.500">
+                          <chakra.p color="gray.500" fontSize="xs">
                             {service.name}
                           </chakra.p>
                           {service.description && (
-                            <chakra.p fontSize="xs" color="gray.500" mt="1">
+                            <chakra.p color="gray.500" fontSize="xs" mt="1">
                               {service.description}
                             </chakra.p>
                           )}
@@ -470,24 +548,31 @@ const Services: React.FC = () => {
                     </chakra.div>
 
                     {/* Type */}
-                    <chakra.div display="flex" alignItems="center" gap="2" fontSize="sm">
+                    <chakra.div
+                      alignItems="center"
+                      display="flex"
+                      fontSize="sm"
+                      gap="2"
+                    >
                       {getServiceTypeIcon(service.service_type)}
-                      <chakra.span textTransform="capitalize">{service.service_type}</chakra.span>
+                      <chakra.span textTransform="capitalize">
+                        {service.service_type}
+                      </chakra.span>
                     </chakra.div>
 
                     {/* Status */}
                     <chakra.div>
                       <chakra.span
-                        bg={`${getServiceStatusColor(service.status)}.100`}
-                        color={`${getServiceStatusColor(service.status)}.800`}
                         _dark={{
                           bg: `${getServiceStatusColor(service.status)}.900`,
                           color: `${getServiceStatusColor(service.status)}.200`,
                         }}
+                        bg={`${getServiceStatusColor(service.status)}.100`}
+                        borderRadius="full"
+                        color={`${getServiceStatusColor(service.status)}.800`}
                         fontSize="xs"
                         px="2"
                         py="1"
-                        borderRadius="full"
                         textTransform="capitalize"
                       >
                         {service.status}
@@ -495,17 +580,32 @@ const Services: React.FC = () => {
                     </chakra.div>
 
                     {/* Server */}
-                    <chakra.div fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                    <chakra.div
+                      _dark={{ color: 'gray.400' }}
+                      color="gray.600"
+                      fontSize="sm"
+                    >
                       <Link to={`/servers/${service.server_id}`}>
-                        <chakra.span _hover={{ color: 'blue.500', textDecoration: 'underline' }}>
+                        <chakra.span
+                          _hover={{
+                            color: 'blue.500',
+                            textDecoration: 'underline',
+                          }}
+                        >
                           {service.server_hostname}
                         </chakra.span>
                       </Link>
                     </chakra.div>
 
                     {/* Last Check */}
-                    <chakra.div fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                      {service.last_status_check ? formatRelativeTime(service.last_status_check) : 'Never'}
+                    <chakra.div
+                      _dark={{ color: 'gray.400' }}
+                      color="gray.600"
+                      fontSize="sm"
+                    >
+                      {service.last_status_check
+                        ? formatRelativeTime(service.last_status_check)
+                        : 'Never'}
                     </chakra.div>
 
                     {/* Actions */}
@@ -514,74 +614,89 @@ const Services: React.FC = () => {
                         <>
                           {!service.is_active && (
                             <chakra.button
+                              _hover={{
+                                bg: 'green.100',
+                                _dark: { bg: 'green.900' },
+                              }}
                               aria-label="Start service"
-                              onClick={() => handleServiceControl(service, 'start')}
-                              p="1"
                               bg="transparent"
-                              _hover={{ bg: 'green.100', _dark: { bg: 'green.900' } }}
                               borderRadius="md"
                               color="green.500"
                               disabled={controlServiceMutation.isPending}
+                              onClick={() =>
+                                handleServiceControl(service, 'start')
+                              }
+                              p="1"
                               title="Start service"
                             >
                               <FiPlay size={14} />
                             </chakra.button>
                           )}
-                          
+
                           {service.is_active && (
                             <chakra.button
+                              _hover={{
+                                bg: 'red.100',
+                                _dark: { bg: 'red.900' },
+                              }}
                               aria-label="Stop service"
-                              onClick={() => handleServiceControl(service, 'stop')}
-                              p="1"
                               bg="transparent"
-                              _hover={{ bg: 'red.100', _dark: { bg: 'red.900' } }}
                               borderRadius="md"
                               color="red.500"
                               disabled={controlServiceMutation.isPending}
+                              onClick={() =>
+                                handleServiceControl(service, 'stop')
+                              }
+                              p="1"
                               title="Stop service"
                             >
                               <FiPause size={14} />
                             </chakra.button>
                           )}
-                          
+
                           <chakra.button
+                            _hover={{
+                              bg: 'blue.100',
+                              _dark: { bg: 'blue.900' },
+                            }}
                             aria-label="Restart service"
-                            onClick={() => handleServiceControl(service, 'restart')}
-                            p="1"
                             bg="transparent"
-                            _hover={{ bg: 'blue.100', _dark: { bg: 'blue.900' } }}
                             borderRadius="md"
                             color="blue.500"
                             disabled={controlServiceMutation.isPending}
+                            onClick={() =>
+                              handleServiceControl(service, 'restart')
+                            }
+                            p="1"
                             title="Restart service"
                           >
                             <FiRotateCcw size={14} />
                           </chakra.button>
                         </>
                       )}
-                      
+
                       <chakra.button
-                        aria-label="View logs"
-                        onClick={() => handleViewLogs(service)}
-                        p="1"
-                        bg="transparent"
                         _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+                        aria-label="View logs"
+                        bg="transparent"
                         borderRadius="md"
                         color="gray.500"
                         disabled={serviceLogsMutation.isPending}
+                        onClick={() => handleViewLogs(service)}
+                        p="1"
                         title="View logs"
                       >
                         <FiFileText size={14} />
                       </chakra.button>
-                      
+
                       <chakra.button
-                        aria-label="View details"
-                        onClick={() => navigate(`/services/${service.id}`)}
-                        p="1"
-                        bg="transparent"
                         _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+                        aria-label="View details"
+                        bg="transparent"
                         borderRadius="md"
                         color="gray.500"
+                        onClick={() => navigate(`/services/${service.id}`)}
+                        p="1"
                         title="View details"
                       >
                         <FiEye size={14} />
@@ -596,39 +711,43 @@ const Services: React.FC = () => {
 
         {/* Pagination */}
         {servicesData && servicesData.total_pages > 1 && (
-          <chakra.div display="flex" justifyContent="center" gap="2">
+          <chakra.div display="flex" gap="2" justifyContent="center">
             <chakra.button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-              px="3"
-              py="2"
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
-              borderRadius="md"
               _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              px="3"
+              py="2"
             >
               Previous
             </chakra.button>
-            
-            <chakra.div display="flex" alignItems="center" px="4">
-              <chakra.span fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+
+            <chakra.div alignItems="center" display="flex" px="4">
+              <chakra.span
+                _dark={{ color: 'gray.400' }}
+                color="gray.600"
+                fontSize="sm"
+              >
                 Page {page} of {servicesData.total_pages}
               </chakra.span>
             </chakra.div>
-            
+
             <chakra.button
-              onClick={() => setPage(page + 1)}
-              disabled={page === servicesData.total_pages}
-              px="3"
-              py="2"
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
-              borderRadius="md"
               _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={page === servicesData.total_pages}
+              onClick={() => setPage(page + 1)}
+              px="3"
+              py="2"
             >
               Next
             </chakra.button>

@@ -2,32 +2,33 @@
  * Servers list page - view and manage all servers
  */
 
-import { useEffect, useState } from 'react';
 import { chakra } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import {
-  FiServer,
+  FiAlertCircle,
+  FiEdit2,
+  FiEye,
+  FiFilter,
   FiPlus,
   FiRefreshCw,
   FiSearch,
-  FiFilter,
-  FiEdit2,
+  FiServer,
   FiTrash2,
-  FiEye,
   FiWifi,
   FiWifiOff,
-  FiAlertCircle,
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUIStore, useServerStore } from '@/store';
-import { useServers, useDeleteServer } from '@/hooks/useApi';
-import { ServerStatus, type Server } from '@/types';
+import { useDeleteServer, useServers } from '@/hooks/useApi';
+import { useServerStore, useUIStore } from '@/store';
+import { type Server, ServerStatus } from '@/types';
 import { formatRelativeTime, getServerStatusColor } from '@/utils';
 
 const Servers: React.FC = () => {
   const navigate = useNavigate();
   const { setPageTitle, setBreadcrumbs, addNotification } = useUIStore();
-  const { serverFilters, setServerFilters, clearServerFilters } = useServerStore();
-  
+  const { serverFilters, setServerFilters, clearServerFilters } =
+    useServerStore();
+
   const [searchTerm, setSearchTerm] = useState(serverFilters.search || '');
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -49,10 +50,7 @@ const Servers: React.FC = () => {
 
   useEffect(() => {
     setPageTitle('Servers');
-    setBreadcrumbs([
-      { label: 'Dashboard', href: '/' },
-      { label: 'Servers' },
-    ]);
+    setBreadcrumbs([{ label: 'Dashboard', href: '/' }, { label: 'Servers' }]);
   }, [setPageTitle, setBreadcrumbs]);
 
   const handleSearch = () => {
@@ -67,7 +65,11 @@ const Servers: React.FC = () => {
   };
 
   const handleDeleteServer = async (server: Server) => {
-    if (window.confirm(`Are you sure you want to delete server "${server.hostname}"? This action cannot be undone.`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete server "${server.hostname}"? This action cannot be undone.`
+      )
+    ) {
       try {
         await deleteServerMutation.mutateAsync(server.id);
         addNotification({
@@ -98,47 +100,63 @@ const Servers: React.FC = () => {
 
   return (
     <chakra.div p="6">
-      <chakra.div display="flex" flexDirection="column" gap="6" alignItems="stretch">
+      <chakra.div
+        alignItems="stretch"
+        display="flex"
+        flexDirection="column"
+        gap="6"
+      >
         {/* Header */}
-        <chakra.div display="flex" justifyContent="space-between" alignItems="flex-start">
+        <chakra.div
+          alignItems="flex-start"
+          display="flex"
+          justifyContent="space-between"
+        >
           <chakra.div>
-            <chakra.h1 fontSize="2xl" fontWeight="bold" color="gray.900" _dark={{ color: 'white' }}>
+            <chakra.h1
+              _dark={{ color: 'white' }}
+              color="gray.900"
+              fontSize="2xl"
+              fontWeight="bold"
+            >
               Servers
             </chakra.h1>
-            <chakra.p color="gray.600" _dark={{ color: 'gray.400' }}>
+            <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
               Manage your Linux servers and monitor their status
             </chakra.p>
           </chakra.div>
 
           <chakra.div display="flex" gap="2">
             <chakra.button
+              _disabled={{ opacity: 0.5 }}
+              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
               aria-label="Refresh servers"
+              bg="transparent"
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={isLoading}
               onClick={() => refetch()}
               p="2"
-              bg="transparent"
-              borderWidth="1px"
-              borderColor="gray.300"
-              _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
-              borderRadius="md"
-              disabled={isLoading}
-              _disabled={{ opacity: 0.5 }}
             >
-              <chakra.div animation={isLoading ? 'spin 1s linear infinite' : undefined}>
+              <chakra.div
+                animation={isLoading ? 'spin 1s linear infinite' : undefined}
+              >
                 <FiRefreshCw />
               </chakra.div>
             </chakra.button>
-            
+
             <Link to="/servers/new">
               <chakra.button
+                _hover={{ bg: 'blue.600' }}
+                alignItems="center"
                 bg="blue.500"
+                borderRadius="md"
                 color="white"
+                display="flex"
+                gap="2"
                 px="4"
                 py="2"
-                borderRadius="md"
-                _hover={{ bg: 'blue.600' }}
-                display="flex"
-                alignItems="center"
-                gap="2"
               >
                 <FiPlus />
                 <chakra.span>Add Server</chakra.span>
@@ -149,70 +167,79 @@ const Servers: React.FC = () => {
 
         {/* Search and Filters */}
         <chakra.div
-          bg="white"
           _dark={{ bg: 'gray.900' }}
+          bg="white"
           borderRadius="lg"
           boxShadow="sm"
           p="4"
         >
-          <chakra.div display="flex" gap="4" alignItems="center" flexWrap="wrap">
+          <chakra.div
+            alignItems="center"
+            display="flex"
+            flexWrap="wrap"
+            gap="4"
+          >
             {/* Search */}
-            <chakra.div display="flex" gap="2" flex="1" minW="300px">
+            <chakra.div display="flex" flex="1" gap="2" minW="300px">
               <chakra.input
-                placeholder="Search servers..."
-                value={searchTerm}
+                _dark={{ borderColor: 'gray.600' }}
+                borderColor="gray.300"
+                borderRadius="md"
+                borderWidth="1px"
+                flex="1"
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search servers..."
                 px="3"
                 py="2"
-                borderWidth="1px"
-                borderColor="gray.300"
-                _dark={{ borderColor: 'gray.600' }}
-                borderRadius="md"
-                flex="1"
+                value={searchTerm}
               />
               <chakra.button
-                onClick={handleSearch}
+                _hover={{ bg: 'blue.600' }}
+                alignItems="center"
                 bg="blue.500"
+                borderRadius="md"
                 color="white"
+                display="flex"
+                gap="2"
+                onClick={handleSearch}
                 px="4"
                 py="2"
-                borderRadius="md"
-                _hover={{ bg: 'blue.600' }}
-                display="flex"
-                alignItems="center"
-                gap="2"
               >
                 <FiSearch />
-                <chakra.span display={{ base: 'none', md: 'inline' }}>Search</chakra.span>
+                <chakra.span display={{ base: 'none', md: 'inline' }}>
+                  Search
+                </chakra.span>
               </chakra.button>
             </chakra.div>
 
             {/* Filter Toggle */}
             <chakra.button
-              onClick={() => setShowFilters(!showFilters)}
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              alignItems="center"
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              display="flex"
+              gap="2"
+              onClick={() => setShowFilters(!showFilters)}
               px="4"
               py="2"
-              borderRadius="md"
-              display="flex"
-              alignItems="center"
-              gap="2"
             >
               <FiFilter />
               <chakra.span>Filters</chakra.span>
             </chakra.button>
 
             {/* Clear Filters */}
-            {(serverFilters.search || serverFilters.status || serverFilters.enabled_only) && (
+            {(serverFilters.search ||
+              serverFilters.status ||
+              serverFilters.enabled_only) && (
               <chakra.button
-                onClick={handleClearFilters}
-                color="red.500"
                 _hover={{ color: 'red.600' }}
+                color="red.500"
                 fontSize="sm"
+                onClick={handleClearFilters}
               >
                 Clear Filters
               </chakra.button>
@@ -221,29 +248,36 @@ const Servers: React.FC = () => {
 
           {/* Expanded Filters */}
           {showFilters && (
-            <chakra.div 
-              mt="4" 
-              pt="4" 
-              borderTopWidth="1px" 
-              borderColor="gray.200" 
+            <chakra.div
               _dark={{ borderColor: 'gray.700' }}
-              display="flex" 
-              gap="4" 
+              borderColor="gray.200"
+              borderTopWidth="1px"
+              display="flex"
               flexWrap="wrap"
+              gap="4"
+              mt="4"
+              pt="4"
             >
               <chakra.div>
-                <chakra.label fontSize="sm" fontWeight="medium" mb="1" display="block">
+                <chakra.label
+                  display="block"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  mb="1"
+                >
                   Status
                 </chakra.label>
                 <chakra.select
-                  value={serverFilters.status || ''}
-                  onChange={(e) => setServerFilters({ status: e.target.value || undefined })}
+                  _dark={{ borderColor: 'gray.600' }}
+                  borderColor="gray.300"
+                  borderRadius="md"
+                  borderWidth="1px"
+                  onChange={(e) =>
+                    setServerFilters({ status: e.target.value || undefined })
+                  }
                   px="3"
                   py="2"
-                  borderWidth="1px"
-                  borderColor="gray.300"
-                  _dark={{ borderColor: 'gray.600' }}
-                  borderRadius="md"
+                  value={serverFilters.status || ''}
                 >
                   <option value="">All statuses</option>
                   <option value={ServerStatus.ONLINE}>Online</option>
@@ -253,14 +287,21 @@ const Servers: React.FC = () => {
               </chakra.div>
 
               <chakra.div>
-                <chakra.label fontSize="sm" fontWeight="medium" mb="1" display="block">
+                <chakra.label
+                  display="block"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  mb="1"
+                >
                   Options
                 </chakra.label>
-                <chakra.label display="flex" alignItems="center" gap="2">
+                <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
+                    checked={serverFilters.enabled_only}
+                    onChange={(e) =>
+                      setServerFilters({ enabled_only: e.target.checked })
+                    }
                     type="checkbox"
-                    checked={serverFilters.enabled_only || false}
-                    onChange={(e) => setServerFilters({ enabled_only: e.target.checked })}
                   />
                   <chakra.span fontSize="sm">Enabled only</chakra.span>
                 </chakra.label>
@@ -272,17 +313,21 @@ const Servers: React.FC = () => {
         {/* Error State */}
         {error && (
           <chakra.div
-            bg="red.50"
             _dark={{ bg: 'red.900', borderColor: 'red.700' }}
+            bg="red.50"
             border="1px solid"
             borderColor="red.200"
             borderRadius="md"
             p="4"
           >
-            <chakra.h3 fontWeight="semibold" color="red.800" _dark={{ color: 'red.200' }}>
+            <chakra.h3
+              _dark={{ color: 'red.200' }}
+              color="red.800"
+              fontWeight="semibold"
+            >
               Error loading servers
             </chakra.h3>
-            <chakra.p color="red.700" _dark={{ color: 'red.300' }}>
+            <chakra.p _dark={{ color: 'red.300' }} color="red.700">
               {error.message || 'An unknown error occurred'}
             </chakra.p>
           </chakra.div>
@@ -291,23 +336,28 @@ const Servers: React.FC = () => {
         {/* Loading State */}
         {isLoading && !serversData && (
           <chakra.div
-            bg="white"
             _dark={{ bg: 'gray.900' }}
+            bg="white"
             borderRadius="lg"
             boxShadow="sm"
             p="8"
           >
-            <chakra.div display="flex" flexDirection="column" alignItems="center" gap="4">
+            <chakra.div
+              alignItems="center"
+              display="flex"
+              flexDirection="column"
+              gap="4"
+            >
               <chakra.div
-                w="8"
-                h="8"
+                animation="spin 1s linear infinite"
                 border="2px solid"
                 borderColor="gray.200"
-                borderTopColor="blue.500"
                 borderRadius="full"
-                animation="spin 1s linear infinite"
+                borderTopColor="blue.500"
+                h="8"
+                w="8"
               />
-              <chakra.p color="gray.600" _dark={{ color: 'gray.400' }}>
+              <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
                 Loading servers...
               </chakra.p>
             </chakra.div>
@@ -317,31 +367,37 @@ const Servers: React.FC = () => {
         {/* Servers List */}
         {serversData && (
           <chakra.div
-            bg="white"
             _dark={{ bg: 'gray.900' }}
+            bg="white"
             borderRadius="lg"
             boxShadow="sm"
             overflow="hidden"
           >
             {serversData.servers.length === 0 ? (
               <chakra.div p="8" textAlign="center">
-                <FiServer size={48} color="var(--chakra-colors-gray-400)" style={{ margin: '0 auto 16px' }} />
+                <FiServer
+                  color="var(--chakra-colors-gray-400)"
+                  size={48}
+                  style={{ margin: '0 auto 16px' }}
+                />
                 <chakra.h3 fontSize="lg" fontWeight="semibold" mb="2">
                   No servers found
                 </chakra.h3>
-                <chakra.p color="gray.600" _dark={{ color: 'gray.400' }} mb="4">
-                  {serverFilters.search || serverFilters.status || serverFilters.enabled_only
+                <chakra.p _dark={{ color: 'gray.400' }} color="gray.600" mb="4">
+                  {serverFilters.search ||
+                  serverFilters.status ||
+                  serverFilters.enabled_only
                     ? 'No servers match your current filters.'
                     : 'Get started by adding your first server.'}
                 </chakra.p>
                 <Link to="/servers/new">
                   <chakra.button
+                    _hover={{ bg: 'blue.600' }}
                     bg="blue.500"
+                    borderRadius="md"
                     color="white"
                     px="4"
                     py="2"
-                    borderRadius="md"
-                    _hover={{ bg: 'blue.600' }}
                   >
                     Add Server
                   </chakra.button>
@@ -351,19 +407,17 @@ const Servers: React.FC = () => {
               <>
                 {/* Table Header */}
                 <chakra.div
-                  display="grid"
-                  gridTemplateColumns="1fr 120px 150px 150px 120px"
-                  gap="4"
-                  p="4"
+                  _dark={{ borderColor: 'gray.700', bg: 'gray.800', color: 'gray.400' }}
+                  bg="gray.50"
                   borderBottomWidth="1px"
                   borderColor="gray.200"
-                  _dark={{ borderColor: 'gray.700' }}
-                  bg="gray.50"
-                  _dark={{ bg: 'gray.800' }}
-                  fontWeight="semibold"
-                  fontSize="sm"
                   color="gray.600"
-                  _dark={{ color: 'gray.400' }}
+                  display="grid"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  gap="4"
+                  gridTemplateColumns="1fr 120px 150px 150px 120px"
+                  p="4"
                 >
                   <chakra.div>Server</chakra.div>
                   <chakra.div>Status</chakra.div>
@@ -375,30 +429,30 @@ const Servers: React.FC = () => {
                 {/* Table Rows */}
                 {serversData.servers.map((server) => (
                   <chakra.div
-                    key={server.id}
-                    display="grid"
-                    gridTemplateColumns="1fr 120px 150px 150px 120px"
-                    gap="4"
-                    p="4"
-                    borderBottomWidth="1px"
-                    borderColor="gray.200"
                     _dark={{ borderColor: 'gray.700' }}
                     _hover={{ bg: 'gray.50', _dark: { bg: 'gray.800' } }}
                     alignItems="center"
+                    borderBottomWidth="1px"
+                    borderColor="gray.200"
+                    display="grid"
+                    gap="4"
+                    gridTemplateColumns="1fr 120px 150px 150px 120px"
+                    key={server.id}
+                    p="4"
                   >
                     {/* Server Info */}
                     <chakra.div>
-                      <chakra.div display="flex" alignItems="center" gap="3">
+                      <chakra.div alignItems="center" display="flex" gap="3">
                         {getStatusIcon(server.status)}
                         <chakra.div>
-                          <chakra.h4 fontWeight="medium" fontSize="sm">
+                          <chakra.h4 fontSize="sm" fontWeight="medium">
                             {server.display_name || server.hostname}
                           </chakra.h4>
-                          <chakra.p fontSize="xs" color="gray.500">
+                          <chakra.p color="gray.500" fontSize="xs">
                             {server.ip_address}
                           </chakra.p>
                           {server.description && (
-                            <chakra.p fontSize="xs" color="gray.500" mt="1">
+                            <chakra.p color="gray.500" fontSize="xs" mt="1">
                               {server.description}
                             </chakra.p>
                           )}
@@ -409,16 +463,16 @@ const Servers: React.FC = () => {
                     {/* Status */}
                     <chakra.div>
                       <chakra.span
-                        bg={`${getServerStatusColor(server.status)}.100`}
-                        color={`${getServerStatusColor(server.status)}.800`}
                         _dark={{
                           bg: `${getServerStatusColor(server.status)}.900`,
                           color: `${getServerStatusColor(server.status)}.200`,
                         }}
+                        bg={`${getServerStatusColor(server.status)}.100`}
+                        borderRadius="full"
+                        color={`${getServerStatusColor(server.status)}.800`}
                         fontSize="xs"
                         px="2"
                         py="1"
-                        borderRadius="full"
                         textTransform="capitalize"
                       >
                         {server.status}
@@ -426,12 +480,22 @@ const Servers: React.FC = () => {
                     </chakra.div>
 
                     {/* Last Seen */}
-                    <chakra.div fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
-                      {server.last_seen ? formatRelativeTime(server.last_seen) : 'Never'}
+                    <chakra.div
+                      _dark={{ color: 'gray.400' }}
+                      color="gray.600"
+                      fontSize="sm"
+                    >
+                      {server.last_seen
+                        ? formatRelativeTime(server.last_seen)
+                        : 'Never'}
                     </chakra.div>
 
                     {/* System Info */}
-                    <chakra.div fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                    <chakra.div
+                      _dark={{ color: 'gray.400' }}
+                      color="gray.600"
+                      fontSize="sm"
+                    >
                       {server.os_name ? (
                         <chakra.div>
                           <chakra.div>{server.os_name}</chakra.div>
@@ -449,38 +513,38 @@ const Servers: React.FC = () => {
                     {/* Actions */}
                     <chakra.div display="flex" gap="1">
                       <chakra.button
-                        aria-label="View server"
-                        onClick={() => navigate(`/servers/${server.id}`)}
-                        p="1"
-                        bg="transparent"
                         _hover={{ bg: 'blue.100', _dark: { bg: 'blue.900' } }}
+                        aria-label="View server"
+                        bg="transparent"
                         borderRadius="md"
                         color="blue.500"
+                        onClick={() => navigate(`/servers/${server.id}`)}
+                        p="1"
                       >
                         <FiEye size={16} />
                       </chakra.button>
-                      
+
                       <chakra.button
-                        aria-label="Edit server"
-                        onClick={() => navigate(`/servers/${server.id}/edit`)}
-                        p="1"
-                        bg="transparent"
                         _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+                        aria-label="Edit server"
+                        bg="transparent"
                         borderRadius="md"
                         color="gray.500"
+                        onClick={() => navigate(`/servers/${server.id}/edit`)}
+                        p="1"
                       >
                         <FiEdit2 size={16} />
                       </chakra.button>
-                      
+
                       <chakra.button
-                        aria-label="Delete server"
-                        onClick={() => handleDeleteServer(server)}
-                        p="1"
-                        bg="transparent"
                         _hover={{ bg: 'red.100', _dark: { bg: 'red.900' } }}
+                        aria-label="Delete server"
+                        bg="transparent"
                         borderRadius="md"
                         color="red.500"
                         disabled={deleteServerMutation.isPending}
+                        onClick={() => handleDeleteServer(server)}
+                        p="1"
                       >
                         <FiTrash2 size={16} />
                       </chakra.button>
@@ -494,39 +558,43 @@ const Servers: React.FC = () => {
 
         {/* Pagination */}
         {serversData && serversData.total_pages > 1 && (
-          <chakra.div display="flex" justifyContent="center" gap="2">
+          <chakra.div display="flex" gap="2" justifyContent="center">
             <chakra.button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-              px="3"
-              py="2"
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
-              borderRadius="md"
               _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={page === 1}
+              onClick={() => setPage(page - 1)}
+              px="3"
+              py="2"
             >
               Previous
             </chakra.button>
-            
-            <chakra.div display="flex" alignItems="center" px="4">
-              <chakra.span fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+
+            <chakra.div alignItems="center" display="flex" px="4">
+              <chakra.span
+                _dark={{ color: 'gray.400' }}
+                color="gray.600"
+                fontSize="sm"
+              >
                 Page {page} of {serversData.total_pages}
               </chakra.span>
             </chakra.div>
-            
+
             <chakra.button
-              onClick={() => setPage(page + 1)}
-              disabled={page === serversData.total_pages}
-              px="3"
-              py="2"
-              borderWidth="1px"
-              borderColor="gray.300"
               _dark={{ borderColor: 'gray.600' }}
-              borderRadius="md"
               _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
+              borderColor="gray.300"
+              borderRadius="md"
+              borderWidth="1px"
+              disabled={page === serversData.total_pages}
+              onClick={() => setPage(page + 1)}
+              px="3"
+              py="2"
             >
               Next
             </chakra.button>
