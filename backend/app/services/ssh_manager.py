@@ -76,7 +76,7 @@ class SSHConnectionManager:
             
             # Create connection object
             connection = Connection(
-                host=server.ip_address,
+                host=server.hostname,
                 port=server.ssh_port,
                 user=server.ssh_username,
                 config=config,

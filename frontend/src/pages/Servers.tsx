@@ -449,7 +449,7 @@ const Servers: React.FC = () => {
                             {server.display_name || server.hostname}
                           </chakra.h4>
                           <chakra.p color="gray.500" fontSize="xs">
-                            {server.ip_address}
+                            {server.hostname}
                           </chakra.p>
                           {server.description && (
                             <chakra.p color="gray.500" fontSize="xs" mt="1">

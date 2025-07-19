@@ -12,12 +12,11 @@ from app.models.server import ServerStatus
 class ServerCreateRequest(BaseModel):
     """Schema for creating a new server."""
     
-    hostname: str = Field(..., min_length=1, max_length=255, description="Server hostname")
+    hostname: str = Field(..., min_length=1, max_length=255, description="Server hostname or IP address")
     display_name: Optional[str] = Field(None, max_length=255, description="Display name for the server")
     description: Optional[str] = Field(None, description="Server description")
     
     # Network configuration
-    ip_address: str = Field(..., description="Server IP address (IPv4 or IPv6)")
     ssh_port: int = Field(22, ge=1, le=65535, description="SSH port number")
     
     # SSH configuration
@@ -41,10 +40,9 @@ class ServerCreateRequest(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "hostname": "web-server-01",
+                "hostname": "web-server-01.example.com",
                 "display_name": "Web Server 01",
                 "description": "Primary web server for production",
-                "ip_address": "192.168.1.100",
                 "ssh_port": 22,
                 "ssh_username": "admin",
                 "ssh_key_path": "/home/user/.ssh/id_rsa",
@@ -57,14 +55,27 @@ class ServerCreateRequest(BaseModel):
         }
     )
     
-    @validator('ip_address')
-    def validate_ip_address(cls, v):
-        """Validate IP address format."""
+    @validator('hostname')
+    def validate_hostname(cls, v):
+        """Validate hostname or IP address format."""
+        import re
         import ipaddress
+        
+        if not v:
+            raise ValueError('Hostname or IP address is required')
+        
+        # Try to parse as IP address first
         try:
             ipaddress.ip_address(v)
+            return v
         except ValueError:
-            raise ValueError('Invalid IP address format')
+            pass
+        
+        # Validate as hostname (allows single words like 'localhost' or FQDNs)
+        if re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$", v):
+            return v
+        
+        raise ValueError('Invalid hostname or IP address format')
         return v
 
 
@@ -75,7 +86,6 @@ class ServerUpdateRequest(BaseModel):
     description: Optional[str] = Field(None)
     
     # Network configuration
-    ip_address: Optional[str] = Field(None)
     ssh_port: Optional[int] = Field(None, ge=1, le=65535)
     
     # SSH configuration
@@ -95,17 +105,6 @@ class ServerUpdateRequest(BaseModel):
     # Additional metadata
     tags: Optional[Dict[str, str]] = Field(None)
     extra_data: Optional[Dict[str, Any]] = Field(None)
-    
-    @validator('ip_address')
-    def validate_ip_address(cls, v):
-        """Validate IP address format."""
-        if v is not None:
-            import ipaddress
-            try:
-                ipaddress.ip_address(v)
-            except ValueError:
-                raise ValueError('Invalid IP address format')
-        return v
 
 
 class ServerResponse(BaseModel):
@@ -117,7 +116,6 @@ class ServerResponse(BaseModel):
     description: Optional[str]
     
     # Network configuration
-    ip_address: str
     ssh_port: int
     
     # SSH configuration (sensitive fields excluded)
@@ -172,7 +170,6 @@ class ServerResponse(BaseModel):
             hostname=server.hostname,
             display_name=server.display_name,
             description=server.description,
-            ip_address=server.ip_address,
             ssh_port=server.ssh_port,
             ssh_username=server.ssh_username,
             ssh_key_path=server.ssh_key_path,

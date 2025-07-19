@@ -239,7 +239,7 @@ const ServerDetail: React.FC = () => {
                 {server.display_name || server.hostname}
               </chakra.h1>
               <chakra.p _dark={{ color: 'gray.400' }} color="gray.600">
-                {server.ip_address} • {server.hostname}
+                {server.hostname}
               </chakra.p>
               {server.description && (
                 <chakra.p

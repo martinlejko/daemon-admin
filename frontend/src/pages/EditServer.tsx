@@ -14,10 +14,10 @@ import Card from '@/components/UI/Card';
 import FormField, { Input, Textarea } from '@/components/UI/FormField';
 import LoadingSpinner from '@/components/UI/LoadingSpinner';
 import PageHeader from '@/components/UI/PageHeader';
+import { getPageBackground, getDividerStyling } from '@/constants/colors';
 
 interface ServerFormData {
   hostname: string;
-  ip_address: string;
   display_name?: string;
   description?: string;
   ssh_port: number;
@@ -61,7 +61,6 @@ const EditServer: React.FC = () => {
       // Reset form with server data
       reset({
         hostname: server.hostname,
-        ip_address: server.ip_address,
         display_name: server.display_name || '',
         description: server.description || '',
         ssh_port: server.ssh_port,
@@ -104,7 +103,7 @@ const EditServer: React.FC = () => {
 
   if (isLoading) {
     return (
-      <chakra.div p="8" bg="bg.subtle" minH="100vh">
+      <chakra.div p="8" {...getPageBackground()} minH="100vh">
         <chakra.div maxW="2xl" mx="auto">
           <LoadingSpinner fullPage message="Loading server details..." />
         </chakra.div>
@@ -114,7 +113,7 @@ const EditServer: React.FC = () => {
 
   if (error || !server) {
     return (
-      <chakra.div p="8" bg="bg.subtle" minH="100vh">
+      <chakra.div p="8" {...getPageBackground()} minH="100vh">
         <chakra.div maxW="2xl" mx="auto">
           <Card>
             <chakra.div textAlign="center" py="8">
@@ -137,7 +136,7 @@ const EditServer: React.FC = () => {
   }
 
   return (
-    <chakra.div p="8" bg="bg.subtle" minH="100vh">
+    <chakra.div p="8" {...getPageBackground()} minH="100vh">
       <chakra.div maxW="2xl" mx="auto">
         <PageHeader
           title="Edit Server"
@@ -156,41 +155,22 @@ const EditServer: React.FC = () => {
             <chakra.div display="flex" flexDirection="column" gap="6">
               {/* Basic Information */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   Basic Information
                 </chakra.h3>
                 
-                <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
-                  <FormField
-                    label="Hostname"
-                    required
-                    error={errors.hostname?.message}
-                  >
-                    <Input
-                      {...register('hostname', { 
-                        required: 'Hostname is required' 
-                      })}
-                      placeholder="web-server-01"
-                    />
-                  </FormField>
-
-                  <FormField
-                    label="IP Address"
-                    required
-                    error={errors.ip_address?.message}
-                  >
-                    <Input
-                      {...register('ip_address', { 
-                        required: 'IP address is required',
-                        pattern: {
-                          value: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/,
-                          message: 'Invalid IP address format'
-                        }
-                      })}
-                      placeholder="192.168.1.100"
-                    />
-                  </FormField>
-                </chakra.div>
+                <FormField
+                  label="Hostname or IP Address"
+                  required
+                  error={errors.hostname?.message}
+                >
+                  <Input
+                    {...register('hostname', { 
+                      required: 'Hostname or IP address is required' 
+                    })}
+                    placeholder="web-server-01.example.com or 192.168.1.100"
+                  />
+                </FormField>
 
                 <FormField
                   label="Display Name"
@@ -215,7 +195,8 @@ const EditServer: React.FC = () => {
 
               {/* SSH Configuration */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   SSH Configuration
                 </chakra.h3>
                 
@@ -301,7 +282,8 @@ const EditServer: React.FC = () => {
 
               {/* Advanced Settings */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   Advanced Settings
                 </chakra.h3>
                 

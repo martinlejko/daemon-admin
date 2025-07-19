@@ -4,6 +4,7 @@
 
 import { chakra } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
+import { COLORS } from '@/constants/colors';
 
 interface FormFieldProps {
   label: string;
@@ -62,26 +63,39 @@ export const FormField: React.FC<FormFieldProps> = ({
 export const Input: React.FC<any> = (props) => {
   return (
     <chakra.input
-      bg="bg.surface"
+      bg={COLORS.INPUT_BG_LIGHT}
       border="1px solid"
-      borderColor="border"
-      borderRadius="lg"
+      borderColor={COLORS.INPUT_BORDER_LIGHT}
+      borderRadius="xl"
       color="text"
       fontSize="sm"
-      h="10"
-      px="3"
-      transition="all 0.2s"
+      h="12"
+      px="4"
+      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
       w="full"
       _focus={{
-        borderColor: 'accent',
-        boxShadow: '0 0 0 1px var(--chakra-colors-accent)',
+        borderColor: 'brand.400',
+        boxShadow: `0 0 0 3px ${COLORS.FOCUS_RING_LIGHT}`,
         outline: 'none',
+        bg: COLORS.INPUT_BG_FOCUS_LIGHT
       }}
       _hover={{
-        borderColor: 'border.emphasis',
+        borderColor: COLORS.INPUT_BORDER_HOVER_LIGHT
       }}
       _placeholder={{
-        color: 'text.placeholder',
+        color: COLORS.PLACEHOLDER_LIGHT
+      }}
+      _dark={{
+        bg: COLORS.INPUT_BG_DARK,
+        borderColor: COLORS.INPUT_BORDER_DARK,
+        _placeholder: { color: COLORS.PLACEHOLDER_DARK },
+        _focus: {
+          boxShadow: `0 0 0 3px ${COLORS.FOCUS_RING_DARK}`,
+          bg: COLORS.INPUT_BG_FOCUS_DARK
+        },
+        _hover: {
+          borderColor: COLORS.INPUT_BORDER_HOVER_DARK
+        }
       }}
       {...props}
     />
@@ -91,28 +105,41 @@ export const Input: React.FC<any> = (props) => {
 export const Textarea: React.FC<any> = (props) => {
   return (
     <chakra.textarea
-      bg="bg.surface"
+      bg={COLORS.INPUT_BG_LIGHT}
       border="1px solid"
-      borderColor="border"
-      borderRadius="lg"
+      borderColor={COLORS.INPUT_BORDER_LIGHT}
+      borderRadius="xl"
       color="text"
       fontSize="sm"
-      minH="20"
-      px="3"
-      py="2"
+      minH="24"
+      px="4"
+      py="3"
       resize="vertical"
-      transition="all 0.2s"
+      transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
       w="full"
       _focus={{
-        borderColor: 'accent',
-        boxShadow: '0 0 0 1px var(--chakra-colors-accent)',
+        borderColor: 'brand.400',
+        boxShadow: `0 0 0 3px ${COLORS.FOCUS_RING_LIGHT}`,
         outline: 'none',
+        bg: COLORS.INPUT_BG_FOCUS_LIGHT
       }}
       _hover={{
-        borderColor: 'border.emphasis',
+        borderColor: COLORS.INPUT_BORDER_HOVER_LIGHT
       }}
       _placeholder={{
-        color: 'text.placeholder',
+        color: COLORS.PLACEHOLDER_LIGHT
+      }}
+      _dark={{
+        bg: COLORS.INPUT_BG_DARK,
+        borderColor: COLORS.INPUT_BORDER_DARK,
+        _placeholder: { color: COLORS.PLACEHOLDER_DARK },
+        _focus: {
+          boxShadow: `0 0 0 3px ${COLORS.FOCUS_RING_DARK}`,
+          bg: COLORS.INPUT_BG_FOCUS_DARK
+        },
+        _hover: {
+          borderColor: COLORS.INPUT_BORDER_HOVER_DARK
+        }
       }}
       {...props}
     />
@@ -122,7 +149,8 @@ export const Textarea: React.FC<any> = (props) => {
 export const Select: React.FC<any> = (props) => {
   return (
     <chakra.select
-      bg="bg.surface"
+      bg="white"
+      _dark={{ bg: "gray.800" }}
       border="1px solid"
       borderColor="border"
       borderRadius="lg"
@@ -136,9 +164,13 @@ export const Select: React.FC<any> = (props) => {
         borderColor: 'accent',
         boxShadow: '0 0 0 1px var(--chakra-colors-accent)',
         outline: 'none',
+        bg: 'white',
+        _dark: { bg: 'gray.700' }
       }}
       _hover={{
         borderColor: 'border.emphasis',
+        bg: 'gray.50',
+        _dark: { bg: 'gray.700' }
       }}
       {...props}
     />

@@ -13,10 +13,10 @@ import Button from '@/components/UI/Button';
 import Card from '@/components/UI/Card';
 import FormField, { Input, Textarea, Select } from '@/components/UI/FormField';
 import PageHeader from '@/components/UI/PageHeader';
+import { getPageBackground, getDividerStyling } from '@/constants/colors';
 
 interface ServerFormData {
   hostname: string;
-  ip_address: string;
   display_name?: string;
   description?: string;
   ssh_port: number;
@@ -88,7 +88,11 @@ const AddServer: React.FC = () => {
   };
 
   return (
-    <chakra.div p="8" bg="bg.subtle" minH="100vh">
+    <chakra.div 
+      p="8" 
+      minH="100vh"
+      {...getPageBackground()}
+    >
       <chakra.div maxW="2xl" mx="auto">
         <PageHeader
           title="Add Server"
@@ -107,43 +111,23 @@ const AddServer: React.FC = () => {
             <chakra.div display="flex" flexDirection="column" gap="6">
               {/* Basic Information */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   Basic Information
                 </chakra.h3>
                 
-                <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
-                  <FormField
-                    label="Hostname"
-                    required
-                    error={errors.hostname?.message}
-                    description="The server's hostname or domain name"
-                  >
-                    <Input
-                      {...register('hostname', { 
-                        required: 'Hostname is required' 
-                      })}
-                      placeholder="web-server-01"
-                    />
-                  </FormField>
-
-                  <FormField
-                    label="IP Address"
-                    required
-                    error={errors.ip_address?.message}
-                    description="The server's IP address"
-                  >
-                    <Input
-                      {...register('ip_address', { 
-                        required: 'IP address is required',
-                        pattern: {
-                          value: /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/,
-                          message: 'Invalid IP address format'
-                        }
-                      })}
-                      placeholder="192.168.1.100"
-                    />
-                  </FormField>
-                </chakra.div>
+                <FormField
+                  label="Hostname or IP Address"
+                  required
+                  error={errors.hostname?.message}
+                  description="The server's hostname, domain name, or IP address"
+                >
+                  <Input
+                    {...register('hostname', { 
+                      required: 'Hostname or IP address is required' 
+                    })}
+                    placeholder="web-server-01.example.com or 192.168.1.100"
+                  />
+                </FormField>
 
                 <FormField
                   label="Display Name"
@@ -170,7 +154,8 @@ const AddServer: React.FC = () => {
 
               {/* SSH Configuration */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   SSH Configuration
                 </chakra.h3>
                 
@@ -256,7 +241,8 @@ const AddServer: React.FC = () => {
 
               {/* Advanced Settings */}
               <chakra.div>
-                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="4" color="text">
+                <chakra.hr {...getDividerStyling()} mb="8" />
+                <chakra.h3 fontSize="lg" fontWeight="semibold" mb="6" color="text">
                   Advanced Settings
                 </chakra.h3>
                 

@@ -34,7 +34,6 @@ class Server(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     
     # Network configuration
-    ip_address: Mapped[str] = mapped_column(String(45), nullable=False)  # Supports IPv6
     ssh_port: Mapped[int] = mapped_column(Integer, default=22, nullable=False)
     
     # SSH configuration
@@ -96,7 +95,7 @@ class Server(Base):
     @property
     def ssh_connection_string(self) -> str:
         """Get SSH connection string for this server."""
-        return f"{self.ssh_username}@{self.ip_address}:{self.ssh_port}"
+        return f"{self.ssh_username}@{self.hostname}:{self.ssh_port}"
     
     def update_system_info(
         self,

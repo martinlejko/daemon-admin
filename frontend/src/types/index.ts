@@ -14,7 +14,6 @@ export interface Server {
   hostname: string;
   display_name?: string;
   description?: string;
-  ip_address: string;
   ssh_port: number;
   ssh_username: string;
   status: ServerStatus;
@@ -54,7 +53,6 @@ export interface ServerCreateRequest {
   hostname: string;
   display_name?: string;
   description?: string;
-  ip_address: string;
   ssh_port?: number;
   ssh_username: string;
   ssh_password?: string;

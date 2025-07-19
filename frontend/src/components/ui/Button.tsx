@@ -4,6 +4,7 @@
 
 import { chakra } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
+import { COLORS } from '@/constants/colors';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -29,11 +30,20 @@ const variants = {
     _active: { transform: 'translateY(0)' },
   },
   secondary: {
-    bg: 'bg.surface',
+    bg: COLORS.BUTTON_SECONDARY_BG_LIGHT,
     color: 'text',
     borderWidth: '1px',
     borderColor: 'border',
-    _hover: { bg: 'bg.subtle', borderColor: 'border.emphasis' },
+    _hover: { 
+      bg: COLORS.BUTTON_SECONDARY_HOVER_LIGHT,
+      borderColor: 'border.emphasis',
+      transform: 'translateY(-1px)'
+    },
+    _active: { transform: 'translateY(0)' },
+    _dark: { 
+      bg: COLORS.BUTTON_SECONDARY_BG_DARK,
+      _hover: { bg: COLORS.BUTTON_SECONDARY_HOVER_DARK }
+    },
   },
   danger: {
     bg: 'negative',
@@ -44,7 +54,13 @@ const variants = {
   ghost: {
     bg: 'transparent',
     color: 'text.subtle',
-    _hover: { bg: 'bg.subtle', color: 'text' },
+    _hover: { 
+      bg: COLORS.BUTTON_GHOST_HOVER_LIGHT,
+      color: 'text' 
+    },
+    _dark: {
+      _hover: { bg: COLORS.BUTTON_GHOST_HOVER_DARK }
+    },
   },
 };
 

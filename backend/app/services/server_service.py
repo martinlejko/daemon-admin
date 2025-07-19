@@ -38,7 +38,6 @@ class ServerService:
                 hostname=server_data.hostname,
                 display_name=server_data.display_name,
                 description=server_data.description,
-                ip_address=server_data.ip_address,
                 ssh_port=server_data.ssh_port,
                 ssh_username=server_data.ssh_username,
                 ssh_key_path=server_data.ssh_key_path,
@@ -113,7 +112,6 @@ class ServerService:
                 Server.hostname.ilike(f"%{search}%"),
                 Server.display_name.ilike(f"%{search}%"),
                 Server.description.ilike(f"%{search}%"),
-                Server.ip_address.ilike(f"%{search}%"),
             )
             filters.append(search_filter)
         
