@@ -2,10 +2,10 @@
  * Main application component with routing and providers
  */
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import type React from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
 import Dashboard from '@/pages/Dashboard';
 
@@ -24,27 +24,45 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            
+          <Route element={<Layout />} path="/">
+            <Route element={<Dashboard />} index />
+
             {/* Server routes */}
-            <Route path="servers" element={<div>Servers page - coming soon</div>} />
-            <Route path="servers/new" element={<div>Add server page - coming soon</div>} />
-            <Route path="servers/:id" element={<div>Server details page - coming soon</div>} />
-            
+            <Route
+              element={<div>Servers page - coming soon</div>}
+              path="servers"
+            />
+            <Route
+              element={<div>Add server page - coming soon</div>}
+              path="servers/new"
+            />
+            <Route
+              element={<div>Server details page - coming soon</div>}
+              path="servers/:id"
+            />
+
             {/* Service routes */}
-            <Route path="services" element={<div>Services page - coming soon</div>} />
-            <Route path="services/:id" element={<div>Service details page - coming soon</div>} />
-            
+            <Route
+              element={<div>Services page - coming soon</div>}
+              path="services"
+            />
+            <Route
+              element={<div>Service details page - coming soon</div>}
+              path="services/:id"
+            />
+
             {/* Settings routes */}
-            <Route path="settings" element={<div>Settings page - coming soon</div>} />
-            
+            <Route
+              element={<div>Settings page - coming soon</div>}
+              path="settings"
+            />
+
             {/* 404 route */}
-            <Route path="*" element={<div>Page not found</div>} />
+            <Route element={<div>Page not found</div>} path="*" />
           </Route>
         </Routes>
       </Router>
-      
+
       {/* React Query Devtools (only in development) */}
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

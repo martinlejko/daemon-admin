@@ -15,7 +15,7 @@ const NotificationToast: React.FC = () => {
         const timer = setTimeout(() => {
           removeNotification(notification.id);
         }, 5000);
-        
+
         return () => clearTimeout(timer);
       }
     });

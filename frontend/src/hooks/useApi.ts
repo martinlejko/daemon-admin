@@ -3,24 +3,24 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
 import { api } from '@/lib/axios';
 import type {
+  ApiError,
   Server,
-  ServerCreateRequest,
-  ServerListResponse,
   ServerConnectionTestResponse,
+  ServerCreateRequest,
+  ServerFilterParams,
+  ServerListResponse,
   ServerStatsResponse,
   Service,
-  ServiceListResponse,
   ServiceControlRequest,
   ServiceControlResponse,
-  ServiceLogsResponse,
   ServiceDiscoveryResponse,
-  ServiceStatsResponse,
-  ServerFilterParams,
   ServiceFilterParams,
-  ApiError,
+  ServiceListResponse,
+  ServiceLogsResponse,
+  ServiceStatsResponse,
 } from '@/types';
 
 // Server API hooks
@@ -31,7 +31,7 @@ export const useServers = (params?: ServerFilterParams) => {
       const response = await api.get('/servers', { params });
       return response.data;
     },
-    staleTime: 30000, // 30 seconds
+    staleTime: 30_000, // 30 seconds
   });
 };
 
@@ -48,7 +48,7 @@ export const useServer = (serverId: number) => {
 
 export const useCreateServer = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<Server, AxiosError<ApiError>, ServerCreateRequest>({
     mutationFn: async (data: ServerCreateRequest) => {
       const response = await api.post('/servers', data);
@@ -63,8 +63,12 @@ export const useCreateServer = () => {
 
 export const useUpdateServer = (serverId: number) => {
   const queryClient = useQueryClient();
-  
-  return useMutation<Server, AxiosError<ApiError>, Partial<ServerCreateRequest>>({
+
+  return useMutation<
+    Server,
+    AxiosError<ApiError>,
+    Partial<ServerCreateRequest>
+  >({
     mutationFn: async (data: Partial<ServerCreateRequest>) => {
       const response = await api.put(`/servers/${serverId}`, data);
       return response.data;
@@ -79,7 +83,7 @@ export const useUpdateServer = (serverId: number) => {
 
 export const useDeleteServer = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<void, AxiosError<ApiError>, number>({
     mutationFn: async (serverId: number) => {
       await api.delete(`/servers/${serverId}`);
@@ -94,7 +98,11 @@ export const useDeleteServer = () => {
 };
 
 export const useTestServerConnection = () => {
-  return useMutation<ServerConnectionTestResponse, AxiosError<ApiError>, number>({
+  return useMutation<
+    ServerConnectionTestResponse,
+    AxiosError<ApiError>,
+    number
+  >({
     mutationFn: async (serverId: number) => {
       const response = await api.post(`/servers/${serverId}/test-connection`);
       return response.data;
@@ -104,7 +112,7 @@ export const useTestServerConnection = () => {
 
 export const useGatherServerInfo = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<any, AxiosError<ApiError>, number>({
     mutationFn: async (serverId: number) => {
       const response = await api.post(`/servers/${serverId}/gather-info`);
@@ -124,8 +132,8 @@ export const useServerStats = () => {
       const response = await api.get('/servers/stats/overview');
       return response.data;
     },
-    staleTime: 60000, // 1 minute
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 60_000, // 1 minute
+    refetchInterval: 60_000, // Refetch every minute
   });
 };
 
@@ -137,7 +145,7 @@ export const useServices = (params?: ServiceFilterParams) => {
       const response = await api.get('/services', { params });
       return response.data;
     },
-    staleTime: 15000, // 15 seconds
+    staleTime: 15_000, // 15 seconds
   });
 };
 
@@ -154,10 +162,16 @@ export const useService = (serviceId: number) => {
 
 export const useControlService = () => {
   const queryClient = useQueryClient();
-  
-  return useMutation<ServiceControlResponse, AxiosError<ApiError>, { serviceId: number; action: ServiceControlRequest['action'] }>({
+
+  return useMutation<
+    ServiceControlResponse,
+    AxiosError<ApiError>,
+    { serviceId: number; action: ServiceControlRequest['action'] }
+  >({
     mutationFn: async ({ serviceId, action }) => {
-      const response = await api.post(`/services/${serviceId}/control`, { action });
+      const response = await api.post(`/services/${serviceId}/control`, {
+        action,
+      });
       return response.data;
     },
     onSuccess: (_, { serviceId }) => {
@@ -169,7 +183,11 @@ export const useControlService = () => {
 };
 
 export const useServiceLogs = () => {
-  return useMutation<ServiceLogsResponse, AxiosError<ApiError>, { serviceId: number; lines?: number }>({
+  return useMutation<
+    ServiceLogsResponse,
+    AxiosError<ApiError>,
+    { serviceId: number; lines?: number }
+  >({
     mutationFn: async ({ serviceId, lines = 100 }) => {
       const response = await api.get(`/services/${serviceId}/logs`, {
         params: { lines },
@@ -181,8 +199,12 @@ export const useServiceLogs = () => {
 
 export const useDiscoverServices = () => {
   const queryClient = useQueryClient();
-  
-  return useMutation<ServiceDiscoveryResponse, AxiosError<ApiError>, { serverId: number; forceRefresh?: boolean }>({
+
+  return useMutation<
+    ServiceDiscoveryResponse,
+    AxiosError<ApiError>,
+    { serverId: number; forceRefresh?: boolean }
+  >({
     mutationFn: async ({ serverId, forceRefresh = false }) => {
       const response = await api.post(`/services/discover/${serverId}`, {
         force_refresh: forceRefresh,
@@ -203,8 +225,8 @@ export const useServiceStats = () => {
       const response = await api.get('/services/stats/overview');
       return response.data;
     },
-    staleTime: 60000, // 1 minute
-    refetchInterval: 60000, // Refetch every minute
+    staleTime: 60_000, // 1 minute
+    refetchInterval: 60_000, // Refetch every minute
   });
 };
 
@@ -216,8 +238,8 @@ export const useHealthCheck = () => {
       const response = await api.get('/health');
       return response.data;
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 30_000, // 30 seconds
+    refetchInterval: 30_000, // Refetch every 30 seconds
     retry: 1,
   });
 };

@@ -3,25 +3,25 @@
  */
 
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 // UI state
 interface UIState {
   // Sidebar state
   isSidebarOpen: boolean;
   sidebarCollapsed: boolean;
-  
+
   // Theme state
   isDarkMode: boolean;
-  
+
   // Layout state
   pageTitle: string;
   breadcrumbs: Array<{ label: string; href?: string }>;
-  
+
   // Loading states
   isLoading: boolean;
   loadingMessage?: string;
-  
+
   // Notification state
   notifications: Array<{
     id: string;
@@ -38,20 +38,24 @@ interface UIActions {
   setSidebarOpen: (open: boolean) => void;
   toggleSidebarCollapsed: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
-  
+
   // Theme actions
   toggleDarkMode: () => void;
   setDarkMode: (dark: boolean) => void;
-  
+
   // Layout actions
   setPageTitle: (title: string) => void;
-  setBreadcrumbs: (breadcrumbs: Array<{ label: string; href?: string }>) => void;
-  
+  setBreadcrumbs: (
+    breadcrumbs: Array<{ label: string; href?: string }>
+  ) => void;
+
   // Loading actions
   setLoading: (loading: boolean, message?: string) => void;
-  
+
   // Notification actions
-  addNotification: (notification: Omit<UIState['notifications'][0], 'id' | 'timestamp'>) => void;
+  addNotification: (
+    notification: Omit<UIState['notifications'][0], 'id' | 'timestamp'>
+  ) => void;
   removeNotification: (id: string) => void;
   clearNotifications: () => void;
 }
@@ -68,24 +72,27 @@ export const useUIStore = create<UIState & UIActions>()(
       isLoading: false,
       loadingMessage: undefined,
       notifications: [],
-      
+
       // Sidebar actions
-      toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+      toggleSidebar: () =>
+        set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
       setSidebarOpen: (open) => set({ isSidebarOpen: open }),
-      toggleSidebarCollapsed: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+      toggleSidebarCollapsed: () =>
+        set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-      
+
       // Theme actions
       toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
       setDarkMode: (dark) => set({ isDarkMode: dark }),
-      
+
       // Layout actions
       setPageTitle: (title) => set({ pageTitle: title }),
       setBreadcrumbs: (breadcrumbs) => set({ breadcrumbs }),
-      
+
       // Loading actions
-      setLoading: (loading, message) => set({ isLoading: loading, loadingMessage: message }),
-      
+      setLoading: (loading, message) =>
+        set({ isLoading: loading, loadingMessage: message }),
+
       // Notification actions
       addNotification: (notification) => {
         const id = Math.random().toString(36).substr(2, 9);
@@ -95,11 +102,11 @@ export const useUIStore = create<UIState & UIActions>()(
           timestamp: new Date(),
           autoClose: notification.autoClose ?? true,
         };
-        
+
         set((state) => ({
-          notifications: [...state.notifications, newNotification]
+          notifications: [...state.notifications, newNotification],
         }));
-        
+
         // Auto-remove notification after 5 seconds if autoClose is true
         if (newNotification.autoClose) {
           setTimeout(() => {
@@ -107,9 +114,10 @@ export const useUIStore = create<UIState & UIActions>()(
           }, 5000);
         }
       },
-      removeNotification: (id) => set((state) => ({
-        notifications: state.notifications.filter(n => n.id !== id)
-      })),
+      removeNotification: (id) =>
+        set((state) => ({
+          notifications: state.notifications.filter((n) => n.id !== id),
+        })),
       clearNotifications: () => set({ notifications: [] }),
     }),
     {
@@ -149,12 +157,13 @@ export const useServerStore = create<ServerState & ServerActions>()(
       selectedServerId: undefined,
       serverFilters: {},
       serverView: 'list',
-      
+
       // Actions
       setSelectedServer: (id) => set({ selectedServerId: id }),
-      setServerFilters: (filters) => set((state) => ({
-        serverFilters: { ...state.serverFilters, ...filters }
-      })),
+      setServerFilters: (filters) =>
+        set((state) => ({
+          serverFilters: { ...state.serverFilters, ...filters },
+        })),
       clearServerFilters: () => set({ serverFilters: {} }),
       setServerView: (view) => set({ serverView: view }),
     }),
@@ -200,18 +209,20 @@ export const useServiceStore = create<ServiceState & ServiceActions>()(
       serviceView: 'list',
       showServiceLogs: false,
       logServiceId: undefined,
-      
+
       // Actions
       setSelectedService: (id) => set({ selectedServiceId: id }),
-      setServiceFilters: (filters) => set((state) => ({
-        serviceFilters: { ...state.serviceFilters, ...filters }
-      })),
+      setServiceFilters: (filters) =>
+        set((state) => ({
+          serviceFilters: { ...state.serviceFilters, ...filters },
+        })),
       clearServiceFilters: () => set({ serviceFilters: {} }),
       setServiceView: (view) => set({ serviceView: view }),
-      setShowServiceLogs: (show, serviceId) => set({
-        showServiceLogs: show,
-        logServiceId: show ? serviceId : undefined,
-      }),
+      setShowServiceLogs: (show, serviceId) =>
+        set({
+          showServiceLogs: show,
+          logServiceId: show ? serviceId : undefined,
+        }),
     }),
     {
       name: 'owleyes-service-storage',
@@ -250,7 +261,7 @@ export const useAppSettingsStore = create<AppSettings & AppSettingsActions>()(
     (set) => ({
       // Initial state
       ...defaultAppSettings,
-      
+
       // Actions
       updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
       resetSettings: () => set(defaultAppSettings),

@@ -2,9 +2,9 @@
  * Utility functions for the application
  */
 
-import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { type ClassValue, clsx } from 'clsx';
-import { ServerStatus, ServiceStatus, ServiceState } from '@/types';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
+import { ServerStatus, ServiceState, ServiceStatus } from '@/types';
 
 // Combine class names
 export function cn(...inputs: ClassValue[]) {
@@ -12,7 +12,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Date formatting utilities
-export const formatDate = (date: string | Date, formatStr = 'yyyy-MM-dd HH:mm:ss') => {
+export const formatDate = (
+  date: string | Date,
+  formatStr = 'yyyy-MM-dd HH:mm:ss'
+) => {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   return format(dateObj, formatStr);
 };
@@ -71,14 +74,14 @@ export const getServiceStateColor = (state: ServiceState): string => {
 // Data formatting utilities
 export const formatBytes = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  
+
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+
+  return Number.parseFloat((bytes / k ** i).toFixed(dm)) + ' ' + sizes[i];
 };
 
 export const formatMemoryMB = (mb: number): string => {
@@ -98,19 +101,22 @@ export const formatDiskGB = (gb: number): string => {
 export const formatDuration = (seconds: number): string => {
   if (seconds < 60) {
     return `${seconds}s`;
-  } else if (seconds < 3600) {
+  }
+  if (seconds < 3600) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
-  } else if (seconds < 86400) {
+    return remainingSeconds > 0
+      ? `${minutes}m ${remainingSeconds}s`
+      : `${minutes}m`;
+  }
+  if (seconds < 86_400) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-  } else {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
   }
+  const days = Math.floor(seconds / 86_400);
+  const hours = Math.floor((seconds % 86_400) / 3600);
+  return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
 };
 
 export const formatPercentage = (value: number, decimals = 1): string => {
@@ -119,7 +125,8 @@ export const formatPercentage = (value: number, decimals = 1): string => {
 
 // Validation utilities
 export const isValidIPAddress = (ip: string): boolean => {
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
   const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
   return ipv4Regex.test(ip) || ipv6Regex.test(ip);
 };
@@ -130,7 +137,7 @@ export const isValidHostname = (hostname: string): boolean => {
 };
 
 export const isValidPort = (port: number): boolean => {
-  return port > 0 && port <= 65535;
+  return port > 0 && port <= 65_535;
 };
 
 // Error handling utilities
@@ -138,28 +145,28 @@ export const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   if (typeof error === 'string') {
     return error;
   }
-  
+
   if (error && typeof error === 'object' && 'detail' in error) {
     return String((error as any).detail);
   }
-  
+
   return 'An unknown error occurred';
 };
 
 // URL utilities
 export const buildQueryString = (params: Record<string, any>): string => {
   const searchParams = new URLSearchParams();
-  
+
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       searchParams.append(key, String(value));
     }
   });
-  
+
   return searchParams.toString();
 };
 
@@ -172,7 +179,7 @@ export const safeLocalStorage = {
       return null;
     }
   },
-  
+
   setItem: (key: string, value: string): void => {
     try {
       localStorage.setItem(key, value);
@@ -180,7 +187,7 @@ export const safeLocalStorage = {
       // Silently fail if localStorage is not available
     }
   },
-  
+
   removeItem: (key: string): void => {
     try {
       localStorage.removeItem(key);
@@ -196,7 +203,7 @@ export const debounce = <T extends (...args: any[]) => any>(
   delay: number
 ): ((...args: Parameters<T>) => void) => {
   let timeoutId: NodeJS.Timeout;
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);

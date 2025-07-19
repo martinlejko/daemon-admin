@@ -5,17 +5,17 @@
 import { chakra } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import { useUIStore } from '@/store';
-import Sidebar from './Sidebar';
-import Header from './Header';
 import NotificationToast from '../UI/NotificationToast';
+import Header from './Header';
+import Sidebar from './Sidebar';
 
 const Layout: React.FC = () => {
-  const { 
-    isSidebarOpen, 
-    setSidebarOpen, 
+  const {
+    isSidebarOpen,
+    setSidebarOpen,
     sidebarCollapsed,
     isLoading,
-    loadingMessage 
+    loadingMessage,
   } = useUIStore();
 
   const handleSidebarOpen = () => setSidebarOpen(true);
@@ -30,59 +30,63 @@ const Layout: React.FC = () => {
 
       {/* Main content area */}
       <chakra.div
-        ml={{ base: '0', lg: sidebarWidth }}
-        transition="margin-left 0.2s"
-        h="100vh"
         display="flex"
         flexDirection="column"
+        h="100vh"
+        ml={{ base: '0', lg: sidebarWidth }}
+        transition="margin-left 0.2s"
       >
         {/* Header */}
         <Header onSidebarOpen={handleSidebarOpen} />
 
         {/* Page content */}
         <chakra.div
+          _dark={{ bg: 'gray.800' }}
+          bg="gray.50"
           flex="1"
           overflow="auto"
-          bg="gray.50"
-          _dark={{ bg: 'gray.800' }}
           position="relative"
         >
           {/* Loading overlay */}
           {isLoading && (
             <chakra.div
-              position="absolute"
-              top="0"
-              left="0"
-              right="0"
-              bottom="0"
-              bg="blackAlpha.600"
-              zIndex="50"
-              display="flex"
               alignItems="center"
+              bg="blackAlpha.600"
+              bottom="0"
+              display="flex"
               justifyContent="center"
+              left="0"
+              position="absolute"
+              right="0"
+              top="0"
+              zIndex="50"
             >
               <chakra.div
-                bg="white"
                 _dark={{ bg: 'gray.900' }}
-                p="8"
+                alignItems="center"
+                bg="white"
                 borderRadius="lg"
                 boxShadow="lg"
                 display="flex"
                 flexDirection="column"
-                alignItems="center"
                 gap="4"
+                p="8"
               >
                 <chakra.div
-                  w="8"
-                  h="8"
+                  animation="spin 1s linear infinite"
                   border="2px solid"
                   borderColor="gray.200"
-                  borderTopColor="blue.500"
                   borderRadius="full"
-                  animation="spin 1s linear infinite"
+                  borderTopColor="blue.500"
+                  h="8"
+                  w="8"
                 />
                 {loadingMessage && (
-                  <chakra.div textAlign="center" color="gray.600" _dark={{ color: 'gray.400' }}>
+                  <chakra.div
+                    _dark={{ color: 'gray.400' }}
+                    color="gray.600"
+                    textAlign="center"
+                  >
                     {loadingMessage}
                   </chakra.div>
                 )}
