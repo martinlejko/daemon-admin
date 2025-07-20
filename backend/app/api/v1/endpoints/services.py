@@ -1,7 +1,6 @@
 """Service management API endpoints."""
 
 import math
-from datetime import datetime
 from typing import List, Optional
 
 import structlog
@@ -13,23 +12,19 @@ from app.models.service import ServiceStatus, ServiceType
 from app.schemas.service import (
     ServiceControlRequest,
     ServiceControlResponse,
-    ServiceLogsRequest,
     ServiceLogsResponse,
     ServiceResponse,
     ServiceListResponse,
     ServiceDiscoveryRequest,
     ServiceDiscoveryResponse,
     ServiceStatsResponse,
-    ServiceCreateRequest,
     ServiceUpdateRequest,
     ServiceUpdateResponse,
     ServiceRollbackRequest,
-    EnhancedServiceCreateRequest,
     ServiceDeployRequest,
     ServiceDeployResponse,
     ServiceValidationRequest,
     ServiceValidationResponse,
-    ServiceTemplateRequest,
     ServiceTemplateResponse,
 )
 from app.services.service_service import service_service
@@ -48,20 +43,33 @@ async def list_services(
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(20, ge=1, le=100, description="Items per page"),
     server_id: Optional[int] = Query(None, description="Filter by server ID"),
-    search: Optional[str] = Query(None, description="Search in service name, display name, or description"),
-    status_filter: Optional[ServiceStatus] = Query(None, description="Filter by service status"),
-    service_type: Optional[ServiceType] = Query(None, description="Filter by service type"),
+    search: Optional[str] = Query(
+        None, description="Search in service name, display name, or description"
+    ),
+    status_filter: Optional[ServiceStatus] = Query(
+        None, description="Filter by service status"
+    ),
+    service_type: Optional[ServiceType] = Query(
+        None, description="Filter by service type"
+    ),
     enabled_only: bool = Query(False, description="Show only enabled services"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceListResponse:
     """List services with pagination and filtering."""
     try:
         services, total = await service_service.list_services(
-            db, page, per_page, server_id, search, status_filter, service_type, enabled_only
+            db,
+            page,
+            per_page,
+            server_id,
+            search,
+            status_filter,
+            service_type,
+            enabled_only,
         )
-        
+
         total_pages = math.ceil(total / per_page) if total > 0 else 1
-        
+
         return ServiceListResponse(
             services=services,
             total=total,
@@ -72,12 +80,12 @@ async def list_services(
             status_filter=status_filter.value if status_filter else None,
             search_query=search,
         )
-        
+
     except Exception as e:
         logger.error("Failed to list services via API", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to list services"
+            detail="Failed to list services",
         )
 
 
@@ -88,18 +96,17 @@ async def list_services(
     description="Get detailed information about a specific service.",
 )
 async def get_service(
-    service_id: int,
-    db: AsyncSession = Depends(get_db)
+    service_id: int, db: AsyncSession = Depends(get_db)
 ) -> ServiceResponse:
     """Get service by ID."""
     service = await service_service.get_service(db, service_id)
-    
+
     if not service:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Service with ID {service_id} not found"
+            detail=f"Service with ID {service_id} not found",
         )
-    
+
     return service
 
 
@@ -112,7 +119,7 @@ async def get_service(
 async def control_service(
     service_id: int,
     control_request: ServiceControlRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceControlResponse:
     """Control a service (start, stop, restart, etc.)."""
     try:
@@ -121,35 +128,36 @@ async def control_service(
         if control_request.action not in valid_actions:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid action '{control_request.action}'. Valid actions: {', '.join(valid_actions)}"
+                detail=f"Invalid action '{control_request.action}'. Valid actions: {', '.join(valid_actions)}",
             )
-        
+
         response = await service_service.control_service(
             db, service_id, control_request.action
         )
-        
-        logger.info("Service control completed via API", 
-                   service_id=service_id,
-                   action=control_request.action,
-                   success=response.success)
-        
-        return response
-        
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+
+        logger.info(
+            "Service control completed via API",
+            service_id=service_id,
+            action=control_request.action,
+            success=response.success,
         )
+
+        return response
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Failed to control service via API", 
-                    service_id=service_id,
-                    action=control_request.action,
-                    error=str(e))
+        logger.error(
+            "Failed to control service via API",
+            service_id=service_id,
+            action=control_request.action,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to control service"
+            detail="Failed to control service",
         )
 
 
@@ -161,37 +169,42 @@ async def control_service(
 )
 async def get_service_logs(
     service_id: int,
-    lines: int = Query(100, ge=1, le=10000, description="Number of log lines to retrieve"),
+    lines: int = Query(
+        100, ge=1, le=10000, description="Number of log lines to retrieve"
+    ),
     since: Optional[str] = Query(None, description="Show logs since this time"),
-    until: Optional[str] = Query(None, description="Show logs until this time"), 
-    priority: Optional[str] = Query(None, description="Filter logs by minimum priority level"),
-    grep: Optional[str] = Query(None, description="Filter logs containing this text pattern"),
-    db: AsyncSession = Depends(get_db)
+    until: Optional[str] = Query(None, description="Show logs until this time"),
+    priority: Optional[str] = Query(
+        None, description="Filter logs by minimum priority level"
+    ),
+    grep: Optional[str] = Query(
+        None, description="Filter logs containing this text pattern"
+    ),
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceLogsResponse:
     """Get logs for a service."""
     try:
         logs_response = await service_service.get_service_logs(
             db, service_id, lines, since, until, priority, grep
         )
-        
-        logger.info("Service logs retrieved via API", 
-                   service_id=service_id,
-                   lines_returned=logs_response.lines_returned)
-        
-        return logs_response
-        
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+
+        logger.info(
+            "Service logs retrieved via API",
+            service_id=service_id,
+            lines_returned=logs_response.lines_returned,
         )
+
+        return logs_response
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error("Failed to get service logs via API", 
-                    service_id=service_id,
-                    error=str(e))
+        logger.error(
+            "Failed to get service logs via API", service_id=service_id, error=str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve service logs"
+            detail="Failed to retrieve service logs",
         )
 
 
@@ -204,35 +217,34 @@ async def get_service_logs(
 async def discover_services(
     server_id: int,
     discovery_request: ServiceDiscoveryRequest = ServiceDiscoveryRequest(),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceDiscoveryResponse:
     """Discover services on a server."""
     try:
         discovery_response = await service_service.discover_services(
             db, server_id, discovery_request.force_refresh
         )
-        
-        logger.info("Service discovery completed via API", 
-                   server_id=server_id,
-                   services_discovered=discovery_response.services_discovered,
-                   services_updated=discovery_response.services_updated,
-                   services_removed=discovery_response.services_removed,
-                   success=discovery_response.success)
-        
-        return discovery_response
-        
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
+
+        logger.info(
+            "Service discovery completed via API",
+            server_id=server_id,
+            services_discovered=discovery_response.services_discovered,
+            services_updated=discovery_response.services_updated,
+            services_removed=discovery_response.services_removed,
+            success=discovery_response.success,
         )
+
+        return discovery_response
+
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error("Failed to discover services via API", 
-                    server_id=server_id,
-                    error=str(e))
+        logger.error(
+            "Failed to discover services via API", server_id=server_id, error=str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to discover services"
+            detail="Failed to discover services",
         )
 
 
@@ -242,19 +254,17 @@ async def discover_services(
     summary="Get service statistics",
     description="Get overview statistics for all services.",
 )
-async def get_service_stats(
-    db: AsyncSession = Depends(get_db)
-) -> ServiceStatsResponse:
+async def get_service_stats(db: AsyncSession = Depends(get_db)) -> ServiceStatsResponse:
     """Get service statistics overview."""
     try:
         stats = await service_service.get_service_stats(db)
         return stats
-        
+
     except Exception as e:
         logger.error("Failed to get service stats via API", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get service statistics"
+            detail="Failed to get service statistics",
         )
 
 
@@ -271,143 +281,162 @@ async def get_service_templates(
     try:
         # Define common service templates
         templates = []
-        
+
         # Python Application Template
         if not template_type or template_type == "python":
-            from app.schemas.service import EnhancedServiceCreateRequest, SystemdServiceType, RestartPolicy
-            templates.append(ServiceTemplateResponse(
-                template_name="python-app",
-                description="Python application service with uv",
-                service_config=EnhancedServiceCreateRequest(
-                    name="my-python-app",
-                    display_name="My Python Application",
-                    description="A Python application service",
-                    systemd_type=SystemdServiceType.SIMPLE,
-                    exec_start="uv run python main.py",
-                    restart_policy=RestartPolicy.ON_FAILURE,
-                    user="app",
-                    group="app",
-                    working_directory="/opt/app",
-                    environment_variables={
-                        "PYTHONPATH": "/opt/app",
-                        "ENV": "production"
-                    },
-                    standard_output="journal",
-                    standard_error="journal",
-                    auto_start=True,
-                    auto_enable=True,
-                ),
-                required_parameters=["name", "exec_start", "working_directory"],
-                optional_parameters=["user", "group", "environment_variables"]
-            ))
-        
+            from app.schemas.service import (
+                EnhancedServiceCreateRequest,
+                SystemdServiceType,
+                RestartPolicy,
+            )
+
+            templates.append(
+                ServiceTemplateResponse(
+                    template_name="python-app",
+                    description="Python application service with uv",
+                    service_config=EnhancedServiceCreateRequest(
+                        name="my-python-app",
+                        display_name="My Python Application",
+                        description="A Python application service",
+                        systemd_type=SystemdServiceType.SIMPLE,
+                        exec_start="uv run python main.py",
+                        restart_policy=RestartPolicy.ON_FAILURE,
+                        user="app",
+                        group="app",
+                        working_directory="/opt/app",
+                        environment_variables={
+                            "PYTHONPATH": "/opt/app",
+                            "ENV": "production",
+                        },
+                        standard_output="journal",
+                        standard_error="journal",
+                        auto_start=True,
+                        auto_enable=True,
+                    ),
+                    required_parameters=["name", "exec_start", "working_directory"],
+                    optional_parameters=["user", "group", "environment_variables"],
+                )
+            )
+
         # Timer Service Template
         if not template_type or template_type == "timer":
             from app.schemas.service import TimerConfiguration
-            templates.append(ServiceTemplateResponse(
-                template_name="scheduled-task",
-                description="Scheduled task service with timer",
-                service_config=EnhancedServiceCreateRequest(
-                    name="my-scheduled-task",
-                    display_name="My Scheduled Task",
-                    description="A scheduled task service",
-                    systemd_type=SystemdServiceType.ONESHOT,
-                    exec_start="/usr/bin/python3 /opt/scripts/task.py",
-                    restart_policy=RestartPolicy.NO,
-                    user="scripts",
-                    group="scripts",
-                    working_directory="/opt/scripts",
-                    standard_output="journal",
-                    standard_error="journal",
-                    create_timer=True,
-                    timer_config=TimerConfiguration(
-                        on_calendar="daily",
-                        persistent=True,
-                        accuracy_sec="1min"
+
+            templates.append(
+                ServiceTemplateResponse(
+                    template_name="scheduled-task",
+                    description="Scheduled task service with timer",
+                    service_config=EnhancedServiceCreateRequest(
+                        name="my-scheduled-task",
+                        display_name="My Scheduled Task",
+                        description="A scheduled task service",
+                        systemd_type=SystemdServiceType.ONESHOT,
+                        exec_start="/usr/bin/python3 /opt/scripts/task.py",
+                        restart_policy=RestartPolicy.NO,
+                        user="scripts",
+                        group="scripts",
+                        working_directory="/opt/scripts",
+                        standard_output="journal",
+                        standard_error="journal",
+                        create_timer=True,
+                        timer_config=TimerConfiguration(
+                            on_calendar="daily", persistent=True, accuracy_sec="1min"
+                        ),
+                        auto_start=False,
+                        auto_enable=True,
                     ),
-                    auto_start=False,
-                    auto_enable=True,
-                ),
-                required_parameters=["name", "exec_start", "timer_config"],
-                optional_parameters=["user", "group", "working_directory"]
-            ))
-        
+                    required_parameters=["name", "exec_start", "timer_config"],
+                    optional_parameters=["user", "group", "working_directory"],
+                )
+            )
+
         # Web Service Template
         if not template_type or template_type == "web":
-            templates.append(ServiceTemplateResponse(
-                template_name="web-service",
-                description="Web service with networking",
-                service_config=EnhancedServiceCreateRequest(
-                    name="my-web-service",
-                    display_name="My Web Service",
-                    description="A web service",
-                    systemd_type=SystemdServiceType.SIMPLE,
-                    exec_start="/usr/bin/node server.js",
-                    restart_policy=RestartPolicy.ON_FAILURE,
-                    restart_sec=5,
-                    user="www-data",
-                    group="www-data",
-                    working_directory="/opt/webapp",
-                    environment_variables={
-                        "NODE_ENV": "production",
-                        "PORT": "3000"
-                    },
-                    after_units=["network.target"],
-                    wants_units=["network.target"],
-                    standard_output="journal",
-                    standard_error="journal",
-                    auto_start=True,
-                    auto_enable=True,
-                ),
-                required_parameters=["name", "exec_start", "working_directory"],
-                optional_parameters=["user", "group", "environment_variables", "after_units"]
-            ))
-        
+            templates.append(
+                ServiceTemplateResponse(
+                    template_name="web-service",
+                    description="Web service with networking",
+                    service_config=EnhancedServiceCreateRequest(
+                        name="my-web-service",
+                        display_name="My Web Service",
+                        description="A web service",
+                        systemd_type=SystemdServiceType.SIMPLE,
+                        exec_start="/usr/bin/node server.js",
+                        restart_policy=RestartPolicy.ON_FAILURE,
+                        restart_sec=5,
+                        user="www-data",
+                        group="www-data",
+                        working_directory="/opt/webapp",
+                        environment_variables={
+                            "NODE_ENV": "production",
+                            "PORT": "3000",
+                        },
+                        after_units=["network.target"],
+                        wants_units=["network.target"],
+                        standard_output="journal",
+                        standard_error="journal",
+                        auto_start=True,
+                        auto_enable=True,
+                    ),
+                    required_parameters=["name", "exec_start", "working_directory"],
+                    optional_parameters=[
+                        "user",
+                        "group",
+                        "environment_variables",
+                        "after_units",
+                    ],
+                )
+            )
+
         # Backup Script Template
         if not template_type or template_type == "backup":
-            templates.append(ServiceTemplateResponse(
-                template_name="backup-script",
-                description="Backup script with timer",
-                service_config=EnhancedServiceCreateRequest(
-                    name="backup-service",
-                    display_name="Backup Service",
-                    description="Automated backup service",
-                    systemd_type=SystemdServiceType.ONESHOT,
-                    exec_start="/opt/scripts/backup.sh",
-                    restart_policy=RestartPolicy.ON_FAILURE,
-                    user="backup",
-                    group="backup",
-                    working_directory="/opt/scripts",
-                    environment_variables={
-                        "BACKUP_DIR": "/backups",
-                        "RETENTION_DAYS": "30"
-                    },
-                    create_timer=True,
-                    timer_config=TimerConfiguration(
-                        on_calendar="*-*-* 02:00:00",  # Daily at 2 AM
-                        persistent=True,
-                        accuracy_sec="5min"
+            templates.append(
+                ServiceTemplateResponse(
+                    template_name="backup-script",
+                    description="Backup script with timer",
+                    service_config=EnhancedServiceCreateRequest(
+                        name="backup-service",
+                        display_name="Backup Service",
+                        description="Automated backup service",
+                        systemd_type=SystemdServiceType.ONESHOT,
+                        exec_start="/opt/scripts/backup.sh",
+                        restart_policy=RestartPolicy.ON_FAILURE,
+                        user="backup",
+                        group="backup",
+                        working_directory="/opt/scripts",
+                        environment_variables={
+                            "BACKUP_DIR": "/backups",
+                            "RETENTION_DAYS": "30",
+                        },
+                        create_timer=True,
+                        timer_config=TimerConfiguration(
+                            on_calendar="*-*-* 02:00:00",  # Daily at 2 AM
+                            persistent=True,
+                            accuracy_sec="5min",
+                        ),
+                        standard_output="journal",
+                        standard_error="journal",
+                        auto_start=False,
+                        auto_enable=True,
                     ),
-                    standard_output="journal",
-                    standard_error="journal",
-                    auto_start=False,
-                    auto_enable=True,
-                ),
-                required_parameters=["name", "exec_start"],
-                optional_parameters=["environment_variables", "timer_config"]
-            ))
-        
-        logger.info("Service templates retrieved via API", 
-                   template_type=template_type,
-                   count=len(templates))
-        
+                    required_parameters=["name", "exec_start"],
+                    optional_parameters=["environment_variables", "timer_config"],
+                )
+            )
+
+        logger.info(
+            "Service templates retrieved via API",
+            template_type=template_type,
+            count=len(templates),
+        )
+
         return templates
-        
+
     except Exception as e:
         logger.error("Failed to get service templates via API", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve service templates"
+            detail="Failed to retrieve service templates",
         )
 
 
@@ -418,32 +447,33 @@ async def get_service_templates(
     description="Validate service configuration before deployment without actually creating the service.",
 )
 async def validate_service(
-    validation_request: ServiceValidationRequest,
-    db: AsyncSession = Depends(get_db)
+    validation_request: ServiceValidationRequest, db: AsyncSession = Depends(get_db)
 ) -> ServiceValidationResponse:
     """Validate service configuration before creation."""
     try:
         result = await service_service.validate_service_creation(
-            db,
-            validation_request.server_id,
-            validation_request.service_config
+            db, validation_request.server_id, validation_request.service_config
         )
-        
-        logger.info("Service validation completed via API", 
-                   server_id=validation_request.server_id,
-                   service_name=validation_request.service_config.name,
-                   valid=result.valid)
-        
+
+        logger.info(
+            "Service validation completed via API",
+            server_id=validation_request.server_id,
+            service_name=validation_request.service_config.name,
+            valid=result.valid,
+        )
+
         return result
-        
+
     except Exception as e:
-        logger.error("Service validation failed via API", 
-                    server_id=validation_request.server_id,
-                    service_name=validation_request.service_config.name,
-                    error=str(e))
+        logger.error(
+            "Service validation failed via API",
+            server_id=validation_request.server_id,
+            service_name=validation_request.service_config.name,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Service validation failed"
+            detail="Service validation failed",
         )
 
 
@@ -455,8 +485,7 @@ async def validate_service(
     description="Create and deploy a custom systemd service to a specified server.",
 )
 async def deploy_service(
-    deploy_request: ServiceDeployRequest,
-    db: AsyncSession = Depends(get_db)
+    deploy_request: ServiceDeployRequest, db: AsyncSession = Depends(get_db)
 ) -> ServiceDeployResponse:
     """Deploy a custom service to a server."""
     try:
@@ -464,33 +493,36 @@ async def deploy_service(
             db,
             deploy_request.server_id,
             deploy_request.service_config,
-            dry_run=deploy_request.dry_run
+            dry_run=deploy_request.dry_run,
         )
-        
-        logger.info("Service deployment completed via API", 
-                   server_id=deploy_request.server_id,
-                   service_name=deploy_request.service_config.name,
-                   success=result.success,
-                   dry_run=deploy_request.dry_run)
-        
+
+        logger.info(
+            "Service deployment completed via API",
+            server_id=deploy_request.server_id,
+            service_name=deploy_request.service_config.name,
+            success=result.success,
+            dry_run=deploy_request.dry_run,
+        )
+
         if not result.success:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=result.message
+                status_code=status.HTTP_400_BAD_REQUEST, detail=result.message
             )
-        
+
         return result
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Service deployment failed via API", 
-                    server_id=deploy_request.server_id,
-                    service_name=deploy_request.service_config.name,
-                    error=str(e))
+        logger.error(
+            "Service deployment failed via API",
+            server_id=deploy_request.server_id,
+            service_name=deploy_request.service_config.name,
+            error=str(e),
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Service deployment failed"
+            detail="Service deployment failed",
         )
 
 
@@ -503,36 +535,46 @@ async def deploy_service(
 async def update_service(
     service_id: int,
     service_data: ServiceUpdateRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceUpdateResponse:
     """Update service configuration using systemd override directories."""
     try:
         result = await service_service.update_service(db, service_id, service_data)
-        
-        logger.info("Service update completed via API",
-                   service_id=service_id,
-                   success=result.success,
-                   changes_count=len(result.changes_applied))
-        
+
+        logger.info(
+            "Service update completed via API",
+            service_id=service_id,
+            success=result.success,
+            changes_count=len(result.changes_applied),
+        )
+
         if not result.success:
             # Return bad request for business logic failures
-            if "not found" in result.message or "not managed" in result.message or "disabled" in result.message:
+            if (
+                "not found" in result.message
+                or "not managed" in result.message
+                or "disabled" in result.message
+            ):
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND if "not found" in result.message else status.HTTP_400_BAD_REQUEST,
-                    detail=result.message
+                    status_code=(
+                        status.HTTP_404_NOT_FOUND
+                        if "not found" in result.message
+                        else status.HTTP_400_BAD_REQUEST
+                    ),
+                    detail=result.message,
                 )
-        
+
         return result
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Service update failed via API",
-                    service_id=service_id,
-                    error=str(e))
+        logger.error(
+            "Service update failed via API", service_id=service_id, error=str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Service update failed"
+            detail="Service update failed",
         )
 
 
@@ -545,43 +587,43 @@ async def update_service(
 async def rollback_service_configuration(
     service_id: int,
     rollback_request: ServiceRollbackRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceUpdateResponse:
     """Rollback service configuration changes."""
     try:
         result = await service_service.rollback_service_configuration(
             db, service_id, rollback_request
         )
-        
-        logger.info("Service rollback completed via API",
-                   service_id=service_id,
-                   success=result.success,
-                   changes_count=len(result.changes_applied))
-        
+
+        logger.info(
+            "Service rollback completed via API",
+            service_id=service_id,
+            success=result.success,
+            changes_count=len(result.changes_applied),
+        )
+
         if not result.success:
             # Return appropriate error codes
             if "not found" in result.message:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=result.message
+                    status_code=status.HTTP_404_NOT_FOUND, detail=result.message
                 )
             else:
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=result.message
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=result.message
                 )
-        
+
         return result
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Service rollback failed via API",
-                    service_id=service_id,
-                    error=str(e))
+        logger.error(
+            "Service rollback failed via API", service_id=service_id, error=str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Service rollback failed"
+            detail="Service rollback failed",
         )
 
 
@@ -593,35 +635,38 @@ async def rollback_service_configuration(
 )
 async def remove_service(
     service_id: int,
-    remove_files: bool = Query(True, description="Whether to remove service files from the server"),
-    db: AsyncSession = Depends(get_db)
+    remove_files: bool = Query(
+        True, description="Whether to remove service files from the server"
+    ),
+    db: AsyncSession = Depends(get_db),
 ) -> ServiceDeployResponse:
     """Remove a custom service."""
     try:
         result = await service_service.remove_custom_service(
             db, service_id, remove_files=remove_files
         )
-        
-        logger.info("Service removal completed via API", 
-                   service_id=service_id,
-                   success=result.success,
-                   remove_files=remove_files)
-        
+
+        logger.info(
+            "Service removal completed via API",
+            service_id=service_id,
+            success=result.success,
+            remove_files=remove_files,
+        )
+
         if not result.success:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=result.message
+                status_code=status.HTTP_400_BAD_REQUEST, detail=result.message
             )
-        
+
         return result
-        
+
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("Service removal failed via API", 
-                    service_id=service_id,
-                    error=str(e))
+        logger.error(
+            "Service removal failed via API", service_id=service_id, error=str(e)
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Service removal failed"
+            detail="Service removal failed",
         )

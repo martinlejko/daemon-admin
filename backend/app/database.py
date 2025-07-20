@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import AsyncGenerator
 
-from sqlalchemy import Column, DateTime, MetaData
+from sqlalchemy import DateTime, MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
 
@@ -34,33 +34,33 @@ metadata = MetaData()
 
 class Base(DeclarativeBase):
     """Base class for all database models."""
-    
+
     metadata = metadata
-    
+
     @declared_attr
     def __tablename__(cls) -> str:
         """Generate table name from class name."""
         return cls.__name__.lower() + "s"
-    
+
     # Audit fields for all models
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         nullable=False,
-        doc="Record creation timestamp"
+        doc="Record creation timestamp",
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False,
-        doc="Record last update timestamp"
+        doc="Record last update timestamp",
     )
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency to get database session.
-    
+
     Yields:
         AsyncSession: Database session for request handling
     """

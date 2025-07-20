@@ -28,14 +28,13 @@ from app.schemas.service import (
 __all__ = [
     # Server schemas
     "ServerCreateRequest",
-    "ServerUpdateRequest", 
+    "ServerUpdateRequest",
     "ServerResponse",
     "ServerListResponse",
     "ServerConnectionTestRequest",
     "ServerConnectionTestResponse",
     "ServerSystemInfoResponse",
     "ServerStatsResponse",
-    
     # Service schemas
     "ServiceControlRequest",
     "ServiceControlResponse",

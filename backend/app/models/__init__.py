@@ -7,7 +7,7 @@ __all__ = [
     "Server",
     "ServerStatus",
     "Service",
-    "ServiceStatus", 
+    "ServiceStatus",
     "ServiceState",
     "ServiceType",
 ]

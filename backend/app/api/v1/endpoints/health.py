@@ -28,7 +28,7 @@ async def health_check() -> Dict[str, Any]:
 async def detailed_health_check(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
     """Detailed health check including database connectivity."""
     settings = get_settings()
-    
+
     # Test database connection
     try:
         await db.execute("SELECT 1")
@@ -37,7 +37,7 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)) -> Dict[str,
     except Exception as e:
         db_status = "unhealthy"
         db_error = str(e)
-    
+
     return {
         "status": "healthy" if db_status == "healthy" else "degraded",
         "service": settings.app_name,
@@ -48,5 +48,5 @@ async def detailed_health_check(db: AsyncSession = Depends(get_db)) -> Dict[str,
                 "status": db_status,
                 "error": db_error,
             }
-        }
+        },
     }

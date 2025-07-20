@@ -33,13 +33,13 @@ logger = structlog.get_logger()
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
     logger.info("Starting Owleyes application")
-    
+
     # Initialize database
     await init_db()
     logger.info("Database initialized")
-    
+
     yield
-    
+
     # Cleanup
     await close_db()
     logger.info("Application shutdown complete")
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
     settings = get_settings()
-    
+
     app = FastAPI(
         title=settings.app_name,
         version=settings.version,
@@ -57,38 +57,41 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         lifespan=lifespan,
     )
-    
+
     # Add middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Frontend URLs
+        allow_origins=[
+            "http://localhost:5173",
+            "http://localhost:3000",
+        ],  # Frontend URLs
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=["*"] if settings.debug else ["localhost", "127.0.0.1"],
     )
-    
+
     # Include API routers
     app.include_router(api_router, prefix="/api/v1")
-    
+
     @app.get("/")
     async def root():
         """Root endpoint for health check."""
         return {
             "message": f"Welcome to {settings.app_name}",
             "version": settings.version,
-            "status": "running"
+            "status": "running",
         }
-    
+
     @app.get("/health")
     async def health_check():
         """Health check endpoint."""
         return {"status": "healthy", "service": "owleyes-backend"}
-    
+
     return app
 
 
@@ -98,7 +101,7 @@ app = create_app()
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     settings = get_settings()
     uvicorn.run(
         "app.main:app",
