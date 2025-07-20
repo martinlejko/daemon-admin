@@ -22,7 +22,12 @@ import {
   FiXCircle,
 } from 'react-icons/fi';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useControlService, useServiceLogs, useServices } from '@/hooks/useApi';
+import {
+  useControlService,
+  useDiscoverServices,
+  useServiceLogs,
+  useServices,
+} from '@/hooks/useApi';
 import { useServiceStore, useUIStore } from '@/store';
 import { type Service, ServiceStatus, ServiceType } from '@/types';
 import { formatRelativeTime, getServiceStatusColor } from '@/utils';
@@ -61,6 +66,7 @@ const Services: React.FC = () => {
 
   const controlServiceMutation = useControlService();
   const serviceLogsMutation = useServiceLogs();
+  const discoverServicesMutation = useDiscoverServices();
 
   useEffect(() => {
     setPageTitle('Services');
@@ -109,10 +115,10 @@ const Services: React.FC = () => {
       if (result.success) {
         refetch();
       }
-    } catch (error) {
+    } catch (err) {
       addNotification({
         type: 'error',
-        message: `Failed to ${action} service: ${error}`,
+        message: `Failed to ${action} service: ${err}`,
       });
     }
   };
@@ -131,10 +137,47 @@ const Services: React.FC = () => {
           ? `Retrieved ${result.lines_returned} log lines for ${service.name}`
           : `Failed to retrieve logs: ${result.logs}`,
       });
-    } catch (error) {
+    } catch (err) {
       addNotification({
         type: 'error',
-        message: `Failed to retrieve logs: ${error}`,
+        message: `Failed to retrieve logs: ${err}`,
+      });
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      // First, refetch current services data
+      refetch();
+
+      // If we have a specific server selected, discover new services on that server
+      if (currentServerId) {
+        const result = await discoverServicesMutation.mutateAsync({
+          serverId: currentServerId,
+          forceRefresh: true,
+        });
+
+        if (result.success) {
+          addNotification({
+            type: 'success',
+            message: `Discovered ${result.services_discovered} new services, updated ${result.services_updated} existing services`,
+          });
+          // Refetch again to show the newly discovered services
+          refetch();
+        }
+      } else {
+        // If no specific server is selected, we could discover services for all servers
+        // For now, just show a message that service discovery works better with a server filter
+        addNotification({
+          type: 'info',
+          message:
+            'Services refreshed. To discover new services, filter by a specific server.',
+        });
+      }
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: `Failed to refresh services: ${err}`,
       });
     }
   };
@@ -191,7 +234,7 @@ const Services: React.FC = () => {
           </chakra.div>
 
           <chakra.div display="flex" gap="2">
-            <Link 
+            <Link
               to={`/services/new${currentServerId ? `?server_id=${currentServerId}` : ''}`}
             >
               <chakra.button
@@ -211,21 +254,30 @@ const Services: React.FC = () => {
                 </chakra.span>
               </chakra.button>
             </Link>
-            
+
             <chakra.button
               _disabled={{ opacity: 0.5 }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
-              aria-label="Refresh services"
+              aria-label="Refresh services and discover new ones"
               bg="transparent"
               borderColor="gray.300"
               borderRadius="md"
               borderWidth="1px"
-              disabled={isLoading}
-              onClick={() => refetch()}
+              disabled={isLoading || discoverServicesMutation.isPending}
+              onClick={handleRefresh}
               p="2"
+              title={
+                currentServerId
+                  ? 'Refresh services and discover new ones'
+                  : 'Refresh services'
+              }
             >
               <chakra.div
-                animation={isLoading ? 'spin 1s linear infinite' : undefined}
+                animation={
+                  isLoading || discoverServicesMutation.isPending
+                    ? 'spin 1s linear infinite'
+                    : undefined
+                }
               >
                 <FiRefreshCw />
               </chakra.div>

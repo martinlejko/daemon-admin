@@ -31,6 +31,7 @@ docker compose logs -f
 ```
 
 Access the application:
+
 - **Frontend**: http://localhost (port 80)
 - **Backend API**: http://localhost:8000
 - **Test SSH Server**: `ssh testuser@localhost -p 2222` (password: `testpass123`)
@@ -269,21 +270,60 @@ docker compose logs -f --tail=100
 This project uses several optimizations to reduce build times and image sizes:
 
 ### Build Context Optimization
+
 - `.dockerignore` files filter unnecessary files
 - Separate `.dockerignore` per service
 - Excludes documentation, cache files, and development artifacts
 
 ### Multi-Stage Builds
+
 - **Frontend**: Separate build and runtime stages using Nginx
 - **Backend**: Separate development and production stages
 - **Test Server**: Minimal Ubuntu with only essential packages
 
 ### Layer Caching
+
 - Dependencies copied before source code
 - Cache mounts for package managers (UV, Bun, APT)
 - Optimized layer ordering for maximum cache reuse
 
 ### Security
+
 - Non-root users in production containers
 - Minimal base images where possible
 - No unnecessary packages or tools in production
+
+curl for creating a service
+
+│ curl -X POST "http://localhost:8000/api/v1/services/deploy" \ │
+│ -H "Content-Type: application/json" \ │
+│ -d '{ │
+│ "server_id": 1, │
+│ "dry_run": false, │
+│ "service_config": { │
+│ "name": "claude-test", │
+│ "display_name": "Claude Test Service", │
+│ "description": "Test service created by Claude for API testing", │
+│ "systemd_type": "simple", │
+│ "exec_start": "/opt/test-services/web-app.py", │
+│ "restart_policy": "always", │
+│ "restart_sec": 10, │
+│ "user": "testuser", │
+│ "group": "testuser", │
+│ "working_directory": "/opt/test-services", │
+│ "environment_variables": { │
+│ "PORT": "3001", │
+│ "NODE_ENV": "production" │
+│ }, │
+│ "standard_output": "journal", │
+│ "standard_error": "journal", │
+│ "after_units": ["network.target"], │
+│ "wants_units": ["network.target"], │
+│ "wanted_by": ["multi-user.target"], │
+│ "auto_start": true, │
+│ "auto_enable": true, │
+│ "auto_restart": false, │
+│ "is_managed": true, │
+│ "is_monitored": true │
+│ } │
+│ }'

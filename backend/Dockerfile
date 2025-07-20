@@ -28,8 +28,7 @@ COPY pyproject.toml uv.lock* ./
 
 # Install dependencies with cache mount and create virtual environment
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv venv .venv && \
-    uv sync --dev
+    UV_PROJECT_ENVIRONMENT=/opt/venv uv sync --dev
 
 # Copy application code
 COPY . .
@@ -37,8 +36,10 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Run development server using UV (works even when .venv is overwritten by volume mount)
-CMD ["uv", "run", "python", "-m", "app.main"]
+# Set the virtual environment path and run development server
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+CMD ["python", "-m", "app.main"]
 
 # Production stage
 FROM base AS production

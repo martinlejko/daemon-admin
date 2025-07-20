@@ -18,7 +18,11 @@ import {
   FiWifiOff,
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDeleteServer, useServers } from '@/hooks/useApi';
+import {
+  useDeleteServer,
+  useGatherServerInfo,
+  useServers,
+} from '@/hooks/useApi';
 import { useServerStore, useUIStore } from '@/store';
 import { type Server, ServerStatus } from '@/types';
 import { formatRelativeTime, getServerStatusColor } from '@/utils';
@@ -47,6 +51,7 @@ const Servers: React.FC = () => {
   });
 
   const deleteServerMutation = useDeleteServer();
+  const gatherServerInfoMutation = useGatherServerInfo();
 
   useEffect(() => {
     setPageTitle('Servers');
@@ -76,12 +81,66 @@ const Servers: React.FC = () => {
           type: 'success',
           message: `Server "${server.hostname}" deleted successfully`,
         });
-      } catch (error) {
+      } catch (err) {
         addNotification({
           type: 'error',
-          message: `Failed to delete server: ${error}`,
+          message: `Failed to delete server: ${err}`,
         });
       }
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      // First, refetch current servers data
+      refetch();
+
+      // Gather updated system info for all online servers
+      if (serversData?.servers) {
+        const onlineServers = serversData.servers.filter(
+          (server) => server.status === ServerStatus.ONLINE
+        );
+
+        if (onlineServers.length > 0) {
+          addNotification({
+            type: 'info',
+            message: `Refreshing system information for ${onlineServers.length} online servers...`,
+          });
+
+          // Gather info for each online server
+          const promises = onlineServers.map(async (server) => {
+            try {
+              await gatherServerInfoMutation.mutateAsync(server.id);
+            } catch (err) {
+              console.warn(
+                `Failed to gather info for server ${server.hostname}:`,
+                err
+              );
+            }
+          });
+
+          await Promise.all(promises);
+
+          // Refetch again to show updated server info
+          refetch();
+
+          addNotification({
+            type: 'success',
+            message: 'Server information refreshed successfully',
+          });
+        } else {
+          addNotification({
+            type: 'info',
+            message:
+              'Servers refreshed. No online servers found to gather system info.',
+          });
+        }
+      }
+    } catch (err) {
+      addNotification({
+        type: 'error',
+        message: `Failed to refresh servers: ${err}`,
+      });
     }
   };
 
@@ -130,17 +189,22 @@ const Servers: React.FC = () => {
             <chakra.button
               _disabled={{ opacity: 0.5 }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
-              aria-label="Refresh servers"
+              aria-label="Refresh servers and gather system info"
               bg="transparent"
               borderColor="gray.300"
               borderRadius="md"
               borderWidth="1px"
-              disabled={isLoading}
-              onClick={() => refetch()}
+              disabled={isLoading || gatherServerInfoMutation.isPending}
+              onClick={handleRefresh}
               p="2"
+              title="Refresh servers and gather updated system information"
             >
               <chakra.div
-                animation={isLoading ? 'spin 1s linear infinite' : undefined}
+                animation={
+                  isLoading || gatherServerInfoMutation.isPending
+                    ? 'spin 1s linear infinite'
+                    : undefined
+                }
               >
                 <FiRefreshCw />
               </chakra.div>
