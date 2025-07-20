@@ -205,7 +205,7 @@ class ServiceService:
             raise ValueError(f"Server {service.server.hostname} is disabled")
         
         try:
-            success, logs = await self.ssh_manager.get_service_logs(
+            success, logs = await ssh_manager.get_service_logs(
                 service.server, 
                 service.name, 
                 lines,
