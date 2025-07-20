@@ -1,19 +1,20 @@
 # Multi-stage Dockerfile for Owleyes Frontend
 
 # Base stage with Node.js and Bun
-FROM oven/bun:1.2-alpine as base
+FROM oven/bun:1.2-alpine AS base
 
 # Set working directory
 WORKDIR /app
 
 # Development stage
-FROM base as development
+FROM base AS development
 
-# Copy package files
-COPY package.json bun.lock* ./
+# Copy package files first for better caching
+COPY package.json bun.lockb* ./
 
-# Install dependencies
-RUN bun install
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install
 
 # Copy source code
 COPY . .
@@ -25,13 +26,14 @@ EXPOSE 5173
 CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
 
 # Build stage
-FROM base as build
+FROM base AS build
 
-# Copy package files
-COPY package.json bun.lock* ./
+# Copy package files first for better caching
+COPY package.json bun.lockb* ./
 
-# Install dependencies
-RUN bun install
+# Install dependencies with cache mount
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install
 
 # Copy source code
 COPY . .
@@ -40,7 +42,7 @@ COPY . .
 RUN bun run build
 
 # Production stage
-FROM nginx:alpine as production
+FROM nginx:alpine AS production
 
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html

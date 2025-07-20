@@ -91,7 +91,32 @@ class Service(Base):
     exec_start: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     exec_reload: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     exec_stop: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    exec_start_pre: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    exec_start_post: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     restart_policy: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    restart_sec: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    
+    # Systemd service configuration
+    systemd_type: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    working_directory: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    user: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    group: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    
+    # Security and sandboxing
+    no_new_privileges: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    private_tmp: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    protect_system: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    protect_home: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    
+    # Logging configuration
+    standard_output: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    standard_error: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    syslog_identifier: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    
+    # Service creation metadata
+    is_custom_created: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    timer_file_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    creation_source: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # 'discovered', 'created', 'imported'
     
     # Dependencies and relationships
     dependencies: Mapped[Optional[List[str]]] = mapped_column(JSONB, nullable=True)

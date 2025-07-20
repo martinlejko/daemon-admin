@@ -14,21 +14,17 @@ import {
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useHealthCheck } from '@/hooks/useApi';
-import { useUIStore } from '@/store';
 import { useTheme } from '@/hooks/useTheme';
+import { useUIStore } from '@/store';
 
 interface HeaderProps {
   onSidebarOpen: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
-  const {
-    pageTitle,
-    breadcrumbs,
-    notifications,
-    clearNotifications,
-  } = useUIStore();
-  
+  const { pageTitle, breadcrumbs, notifications, clearNotifications } =
+    useUIStore();
+
   const { isDark, toggleTheme } = useTheme();
 
   const { refetch: refetchHealth, isFetching: isRefreshing } = useHealthCheck();
@@ -41,14 +37,14 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
 
   return (
     <chakra.div
+      backdropFilter="blur(8px)"
       bg="bg.surface"
       borderBottomWidth="1px"
       borderColor="border"
       h="16"
+      position="sticky"
       px="6"
       py="4"
-      backdropFilter="blur(8px)"
-      position="sticky"
       top="0"
       zIndex="sticky"
     >
@@ -62,11 +58,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
             aria-label="Open navigation menu"
             bg="transparent"
             borderRadius="md"
+            color="text.subtle"
             display={{ base: 'flex', lg: 'none' }}
             justifyContent="center"
             onClick={onSidebarOpen}
             p="2"
-            color="text.subtle"
             transition="all 0.2s"
           >
             <FiMenu />
@@ -74,11 +70,7 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
 
           {/* Page title and breadcrumbs */}
           <chakra.div>
-            <chakra.h1
-              color="text"
-              fontSize="lg"
-              fontWeight="semibold"
-            >
+            <chakra.h1 color="text" fontSize="lg" fontWeight="semibold">
               {pageTitle}
             </chakra.h1>
             {breadcrumbs.length > 1 && (
@@ -99,7 +91,10 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
                   >
                     {crumb.href ? (
                       <Link to={crumb.href}>
-                        <chakra.span _hover={{ color: 'accent' }} transition="all 0.2s">
+                        <chakra.span
+                          _hover={{ color: 'accent' }}
+                          transition="all 0.2s"
+                        >
                           {crumb.label}
                         </chakra.span>
                       </Link>
@@ -180,11 +175,11 @@ const Header: React.FC<HeaderProps> = ({ onSidebarOpen }) => {
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             bg="transparent"
             borderRadius="md"
+            color="text.subtle"
             display="flex"
             justifyContent="center"
             onClick={toggleTheme}
             p="2"
-            color="text.subtle"
             transition="all 0.2s"
           >
             {isDark ? <FiSun /> : <FiMoon />}

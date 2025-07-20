@@ -26,7 +26,7 @@ services:
       target: development
     container_name: daemon-admin-backend
     environment:
-      DATABASE_URL: postgresql://daemon_admin:daemon_admin_password@postgres:5432/daemon_admin
+      DATABASE_URL: postgresql+asyncpg://daemon_admin:daemon_admin_password@postgres:5432/daemon_admin
       DEBUG: "true"
     ports:
       - "8000:8000"

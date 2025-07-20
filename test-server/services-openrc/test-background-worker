@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+# OpenRC service for test background worker
+
+name="test-background-worker"
+description="Test Background Worker"
+command="/opt/test-services/background-worker.py"
+command_user="testuser"
+command_background="yes"
+pidfile="/run/test-background-worker.pid"
+output_log="/var/log/test-services/background-worker.log"
+error_log="/var/log/test-services/background-worker.error.log"
+
+depend() {
+    need net
+}
+
+start_pre() {
+    checkpath --directory --owner testuser:testuser --mode 0755 /var/log/test-services
+}

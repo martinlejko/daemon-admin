@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+# OpenRC service for test API server
+
+name="test-api-server"
+description="Test API Server"
+command="/opt/test-services/api-server.py"
+command_user="testuser"
+command_background="yes"
+pidfile="/run/test-api-server.pid"
+output_log="/var/log/test-services/api-server.log"
+error_log="/var/log/test-services/api-server.error.log"
+
+depend() {
+    need net
+}
+
+start_pre() {
+    checkpath --directory --owner testuser:testuser --mode 0755 /var/log/test-services
+}

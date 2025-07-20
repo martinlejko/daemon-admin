@@ -1,0 +1,28 @@
+#!/sbin/openrc-run
+# OpenRC service for test web app
+
+name="test-web-app"
+description="Test Web Application"
+command="/opt/test-services/web-app.py"
+command_user="testuser"
+command_background="yes"
+pidfile="/run/test-web-app.pid"
+output_log="/var/log/test-services/web-app.log"
+error_log="/var/log/test-services/web-app.error.log"
+
+depend() {
+    need net
+    after firewall
+}
+
+start_pre() {
+    # Ensure log directory exists
+    checkpath --directory --owner testuser:testuser --mode 0755 /var/log/test-services
+}
+
+stop() {
+    if [ -f "$pidfile" ]; then
+        kill $(cat "$pidfile") 2>/dev/null
+        rm -f "$pidfile"
+    fi
+}

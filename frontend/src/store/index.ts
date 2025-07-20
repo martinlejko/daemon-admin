@@ -11,7 +11,6 @@ interface UIState {
   isSidebarOpen: boolean;
   sidebarCollapsed: boolean;
 
-
   // Layout state
   pageTitle: string;
   breadcrumbs: Array<{ label: string; href?: string }>;
@@ -36,7 +35,6 @@ interface UIActions {
   setSidebarOpen: (open: boolean) => void;
   toggleSidebarCollapsed: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
-
 
   // Layout actions
   setPageTitle: (title: string) => void;
@@ -74,7 +72,6 @@ export const useUIStore = create<UIState & UIActions>()(
       toggleSidebarCollapsed: () =>
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
-
 
       // Layout actions
       setPageTitle: (title) => set({ pageTitle: title }),

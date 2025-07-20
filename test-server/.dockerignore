@@ -1,0 +1,40 @@
+# Test server .dockerignore
+
+# Git files
+.git/
+.gitignore
+
+# Documentation
+*.md
+README.md
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+.tmp/
+tmp/
+temp/
+
+# Python cache (for scripts)
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env*
+
+# Backup files
+*.bak
+*.backup

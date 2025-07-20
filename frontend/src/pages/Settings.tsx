@@ -4,34 +4,43 @@
 
 import { chakra } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { FiMoon, FiSun, FiMonitor, FiSave, FiBell, FiShield, FiDatabase } from 'react-icons/fi';
+import {
+  FiBell,
+  FiDatabase,
+  FiMonitor,
+  FiMoon,
+  FiSave,
+  FiShield,
+  FiSun,
+} from 'react-icons/fi';
+import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
+import FormField, { Input, Select } from '@/components/ui/FormField';
+import PageHeader from '@/components/ui/PageHeader';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/store';
-import Button from '@/components/UI/Button';
-import Card from '@/components/UI/Card';
-import FormField, { Input, Select } from '@/components/UI/FormField';
-import PageHeader from '@/components/UI/PageHeader';
 
 const Settings: React.FC = () => {
   const { setPageTitle, setBreadcrumbs, addNotification } = useUIStore();
-  const { theme, setTheme, setLightTheme, setDarkTheme, setSystemTheme } = useTheme();
-  
+  const { theme, setTheme, setLightTheme, setDarkTheme, setSystemTheme } =
+    useTheme();
+
   const [settings, setSettings] = useState({
     // Appearance
     theme: theme || 'system',
-    
+
     // Notifications
     enableNotifications: true,
     notificationDuration: 5000,
-    
+
     // Monitoring
     autoRefreshInterval: 30,
     enableRealTimeUpdates: true,
-    
+
     // Security
     sessionTimeout: 30,
     requirePasswordConfirmation: true,
-    
+
     // Performance
     maxLogLines: 1000,
     enableCaching: true,
@@ -39,15 +48,12 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     setPageTitle('Settings');
-    setBreadcrumbs([
-      { label: 'Dashboard', href: '/' },
-      { label: 'Settings' },
-    ]);
+    setBreadcrumbs([{ label: 'Dashboard', href: '/' }, { label: 'Settings' }]);
   }, [setPageTitle, setBreadcrumbs]);
 
   const handleThemeChange = (newTheme: string) => {
     setSettings({ ...settings, theme: newTheme });
-    
+
     switch (newTheme) {
       case 'light':
         setLightTheme();
@@ -82,7 +88,7 @@ const Settings: React.FC = () => {
       enableCaching: true,
     });
     setSystemTheme();
-    
+
     addNotification({
       type: 'info',
       message: 'Settings reset to defaults',
@@ -90,14 +96,12 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <chakra.div p="8" bg="bg.subtle" minH="100vh">
+    <chakra.div bg="bg.subtle" minH="100vh" p="8">
       <chakra.div maxW="4xl" mx="auto">
         <PageHeader
-          title="Settings"
-          subtitle="Customize your Owleyes experience"
           actions={
             <chakra.div display="flex" gap="3">
-              <Button variant="secondary" onClick={handleResetSettings}>
+              <Button onClick={handleResetSettings} variant="secondary">
                 Reset to Defaults
               </Button>
               <Button leftIcon={<FiSave />} onClick={handleSaveSettings}>
@@ -105,43 +109,51 @@ const Settings: React.FC = () => {
               </Button>
             </chakra.div>
           }
+          subtitle="Customize your Owleyes experience"
+          title="Settings"
         />
 
         <chakra.div display="flex" flexDirection="column" gap="8">
           {/* Appearance Settings */}
           <Card>
-            <chakra.div display="flex" alignItems="center" gap="3" mb="6">
+            <chakra.div alignItems="center" display="flex" gap="3" mb="6">
               <chakra.div color="accent">
                 <FiSun size={20} />
               </chakra.div>
-              <chakra.h3 fontSize="lg" fontWeight="semibold" color="text">
+              <chakra.h3 color="text" fontSize="lg" fontWeight="semibold">
                 Appearance
               </chakra.h3>
             </chakra.div>
 
             <FormField
-              label="Theme"
               description="Choose your preferred color scheme"
+              label="Theme"
             >
-              <chakra.div display="grid" gridTemplateColumns="repeat(3, 1fr)" gap="4">
+              <chakra.div
+                display="grid"
+                gap="4"
+                gridTemplateColumns="repeat(3, 1fr)"
+              >
                 {[
                   { value: 'light', label: 'Light', icon: FiSun },
                   { value: 'dark', label: 'Dark', icon: FiMoon },
                   { value: 'system', label: 'System', icon: FiMonitor },
                 ].map(({ value, label, icon: Icon }) => (
                   <chakra.button
-                    key={value}
-                    onClick={() => handleThemeChange(value)}
+                    _hover={{ borderColor: 'accent' }}
+                    alignItems="center"
+                    bg={
+                      settings.theme === value ? 'accent.subtle' : 'transparent'
+                    }
                     border="1px solid"
                     borderColor={settings.theme === value ? 'accent' : 'border'}
                     borderRadius="lg"
-                    p="4"
                     display="flex"
                     flexDirection="column"
-                    alignItems="center"
                     gap="2"
-                    bg={settings.theme === value ? 'accent.subtle' : 'transparent'}
-                    _hover={{ borderColor: 'accent' }}
+                    key={value}
+                    onClick={() => handleThemeChange(value)}
+                    p="4"
                     transition="all 0.2s"
                   >
                     <Icon size={24} />
@@ -156,22 +168,36 @@ const Settings: React.FC = () => {
 
           {/* Notification Settings */}
           <Card>
-            <chakra.div display="flex" alignItems="center" gap="3" mb="6">
+            <chakra.div alignItems="center" display="flex" gap="3" mb="6">
               <chakra.div color="accent">
                 <FiBell size={20} />
               </chakra.div>
-              <chakra.h3 fontSize="lg" fontWeight="semibold" color="text">
+              <chakra.h3 color="text" fontSize="lg" fontWeight="semibold">
                 Notifications
               </chakra.h3>
             </chakra.div>
 
-            <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
+            <chakra.div
+              display="grid"
+              gap="6"
+              gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            >
               <FormField label="Enable Notifications">
-                <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                <chakra.label
+                  alignItems="center"
+                  cursor="pointer"
+                  display="flex"
+                  gap="3"
+                >
                   <chakra.input
-                    type="checkbox"
                     checked={settings.enableNotifications}
-                    onChange={(e) => setSettings({ ...settings, enableNotifications: e.target.checked })}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        enableNotifications: e.target.checked,
+                      })
+                    }
+                    type="checkbox"
                   />
                   <chakra.span fontSize="sm">
                     Show toast notifications for system events
@@ -180,16 +206,21 @@ const Settings: React.FC = () => {
               </FormField>
 
               <FormField
-                label="Notification Duration"
                 description="How long notifications stay visible (seconds)"
+                label="Notification Duration"
               >
                 <Select
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSettings({
+                      ...settings,
+                      notificationDuration: Number(e.target.value),
+                    })
+                  }
                   value={settings.notificationDuration}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSettings({ ...settings, notificationDuration: Number(e.target.value) })}
                 >
                   <option value={3000}>3 seconds</option>
                   <option value={5000}>5 seconds</option>
-                  <option value={10000}>10 seconds</option>
+                  <option value={10_000}>10 seconds</option>
                   <option value={0}>Until manually closed</option>
                 </Select>
               </FormField>
@@ -198,23 +229,32 @@ const Settings: React.FC = () => {
 
           {/* Monitoring Settings */}
           <Card>
-            <chakra.div display="flex" alignItems="center" gap="3" mb="6">
+            <chakra.div alignItems="center" display="flex" gap="3" mb="6">
               <chakra.div color="accent">
                 <FiDatabase size={20} />
               </chakra.div>
-              <chakra.h3 fontSize="lg" fontWeight="semibold" color="text">
+              <chakra.h3 color="text" fontSize="lg" fontWeight="semibold">
                 Monitoring
               </chakra.h3>
             </chakra.div>
 
-            <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
+            <chakra.div
+              display="grid"
+              gap="6"
+              gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            >
               <FormField
-                label="Auto Refresh Interval"
                 description="How often to refresh data automatically (seconds)"
+                label="Auto Refresh Interval"
               >
                 <Select
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSettings({
+                      ...settings,
+                      autoRefreshInterval: Number(e.target.value),
+                    })
+                  }
                   value={settings.autoRefreshInterval}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSettings({ ...settings, autoRefreshInterval: Number(e.target.value) })}
                 >
                   <option value={10}>10 seconds</option>
                   <option value={30}>30 seconds</option>
@@ -225,11 +265,21 @@ const Settings: React.FC = () => {
               </FormField>
 
               <FormField label="Real-time Updates">
-                <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                <chakra.label
+                  alignItems="center"
+                  cursor="pointer"
+                  display="flex"
+                  gap="3"
+                >
                   <chakra.input
-                    type="checkbox"
                     checked={settings.enableRealTimeUpdates}
-                    onChange={(e) => setSettings({ ...settings, enableRealTimeUpdates: e.target.checked })}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        enableRealTimeUpdates: e.target.checked,
+                      })
+                    }
+                    type="checkbox"
                   />
                   <chakra.span fontSize="sm">
                     Enable WebSocket connections for live updates
@@ -238,25 +288,40 @@ const Settings: React.FC = () => {
               </FormField>
 
               <FormField
-                label="Max Log Lines"
                 description="Maximum number of log lines to display"
+                label="Max Log Lines"
               >
                 <Input
+                  max={10_000}
+                  min={100}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSettings({
+                      ...settings,
+                      maxLogLines: Number(e.target.value),
+                    })
+                  }
+                  step={100}
                   type="number"
                   value={settings.maxLogLines}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, maxLogLines: Number(e.target.value) })}
-                  min={100}
-                  max={10000}
-                  step={100}
                 />
               </FormField>
 
               <FormField label="Enable Caching">
-                <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                <chakra.label
+                  alignItems="center"
+                  cursor="pointer"
+                  display="flex"
+                  gap="3"
+                >
                   <chakra.input
-                    type="checkbox"
                     checked={settings.enableCaching}
-                    onChange={(e) => setSettings({ ...settings, enableCaching: e.target.checked })}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        enableCaching: e.target.checked,
+                      })
+                    }
+                    type="checkbox"
                   />
                   <chakra.span fontSize="sm">
                     Cache API responses for better performance
@@ -268,23 +333,32 @@ const Settings: React.FC = () => {
 
           {/* Security Settings */}
           <Card>
-            <chakra.div display="flex" alignItems="center" gap="3" mb="6">
+            <chakra.div alignItems="center" display="flex" gap="3" mb="6">
               <chakra.div color="accent">
                 <FiShield size={20} />
               </chakra.div>
-              <chakra.h3 fontSize="lg" fontWeight="semibold" color="text">
+              <chakra.h3 color="text" fontSize="lg" fontWeight="semibold">
                 Security
               </chakra.h3>
             </chakra.div>
 
-            <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
+            <chakra.div
+              display="grid"
+              gap="6"
+              gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            >
               <FormField
-                label="Session Timeout"
                 description="Automatically log out after inactivity (minutes)"
+                label="Session Timeout"
               >
                 <Select
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSettings({
+                      ...settings,
+                      sessionTimeout: Number(e.target.value),
+                    })
+                  }
                   value={settings.sessionTimeout}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSettings({ ...settings, sessionTimeout: Number(e.target.value) })}
                 >
                   <option value={15}>15 minutes</option>
                   <option value={30}>30 minutes</option>
@@ -295,11 +369,21 @@ const Settings: React.FC = () => {
               </FormField>
 
               <FormField label="Password Confirmation">
-                <chakra.label display="flex" alignItems="center" gap="3" cursor="pointer">
+                <chakra.label
+                  alignItems="center"
+                  cursor="pointer"
+                  display="flex"
+                  gap="3"
+                >
                   <chakra.input
-                    type="checkbox"
                     checked={settings.requirePasswordConfirmation}
-                    onChange={(e) => setSettings({ ...settings, requirePasswordConfirmation: e.target.checked })}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        requirePasswordConfirmation: e.target.checked,
+                      })
+                    }
+                    type="checkbox"
                   />
                   <chakra.span fontSize="sm">
                     Require password confirmation for sensitive actions
@@ -311,13 +395,17 @@ const Settings: React.FC = () => {
 
           {/* System Information */}
           <Card>
-            <chakra.h3 fontSize="lg" fontWeight="semibold" color="text" mb="4">
+            <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="4">
               System Information
             </chakra.h3>
-            
-            <chakra.div display="grid" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap="6">
+
+            <chakra.div
+              display="grid"
+              gap="6"
+              gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+            >
               <chakra.div>
-                <chakra.span color="text.subtle" fontSize="sm" display="block">
+                <chakra.span color="text.subtle" display="block" fontSize="sm">
                   Application Version
                 </chakra.span>
                 <chakra.span color="text" fontSize="sm" fontWeight="medium">
@@ -326,7 +414,7 @@ const Settings: React.FC = () => {
               </chakra.div>
 
               <chakra.div>
-                <chakra.span color="text.subtle" fontSize="sm" display="block">
+                <chakra.span color="text.subtle" display="block" fontSize="sm">
                   Build Date
                 </chakra.span>
                 <chakra.span color="text" fontSize="sm" fontWeight="medium">
@@ -335,7 +423,7 @@ const Settings: React.FC = () => {
               </chakra.div>
 
               <chakra.div>
-                <chakra.span color="text.subtle" fontSize="sm" display="block">
+                <chakra.span color="text.subtle" display="block" fontSize="sm">
                   API Version
                 </chakra.span>
                 <chakra.span color="text" fontSize="sm" fontWeight="medium">
@@ -344,10 +432,15 @@ const Settings: React.FC = () => {
               </chakra.div>
 
               <chakra.div>
-                <chakra.span color="text.subtle" fontSize="sm" display="block">
+                <chakra.span color="text.subtle" display="block" fontSize="sm">
                   Theme
                 </chakra.span>
-                <chakra.span color="text" fontSize="sm" fontWeight="medium" textTransform="capitalize">
+                <chakra.span
+                  color="text"
+                  fontSize="sm"
+                  fontWeight="medium"
+                  textTransform="capitalize"
+                >
                   {settings.theme}
                 </chakra.span>
               </chakra.div>

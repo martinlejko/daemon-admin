@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Owleyes Backend
 
 # Base stage with Python and UV
-FROM python:3.13-slim as base
+FROM python:3.11-slim AS base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -17,18 +17,19 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
 
 # Development stage
-FROM base as development
+FROM base AS development
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV UV_SYSTEM_PYTHON=1
 
-# Copy dependency files
-COPY pyproject.toml ./
+# Copy dependency files first for better caching
+COPY pyproject.toml uv.lock* ./
 
-# Install dependencies
-RUN uv sync --dev
+# Install dependencies with cache mount and create virtual environment
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv venv .venv && \
+    uv sync --dev
 
 # Copy application code
 COPY . .
@@ -36,26 +37,27 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Run development server
+# Run development server using UV (works even when .venv is overwritten by volume mount)
 CMD ["uv", "run", "python", "-m", "app.main"]
 
 # Production stage
-FROM base as production
+FROM base AS production
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV UV_SYSTEM_PYTHON=1
 ENV ENVIRONMENT=production
 
 # Create non-root user with home directory
 RUN groupadd -r appuser && useradd -r -g appuser -m appuser
 
-# Copy dependency files
-COPY pyproject.toml ./
+# Copy dependency files first for better caching
+COPY pyproject.toml uv.lock* ./
 
-# Install production dependencies only
-RUN uv sync --no-dev
+# Install production dependencies and create virtual environment
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv venv .venv && \
+    uv sync --no-dev
 
 # Copy application code
 COPY . .
@@ -74,5 +76,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Run production server
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run production server with explicit virtual environment activation
+CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

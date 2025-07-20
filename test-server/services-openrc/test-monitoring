@@ -1,0 +1,19 @@
+#!/sbin/openrc-run
+# OpenRC service for test monitoring
+
+name="test-monitoring"
+description="Test Monitoring Service"
+command="/opt/test-services/monitoring.py"
+command_user="testuser"
+command_background="yes"
+pidfile="/run/test-monitoring.pid"
+output_log="/var/log/test-services/monitoring.log"
+error_log="/var/log/test-services/monitoring.error.log"
+
+depend() {
+    need net
+}
+
+start_pre() {
+    checkpath --directory --owner testuser:testuser --mode 0755 /var/log/test-services
+}

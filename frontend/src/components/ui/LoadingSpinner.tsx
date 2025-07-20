@@ -28,7 +28,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       display="flex"
       flexDirection="column"
       gap="4"
-      py={fullPage ? "12" : "8"}
+      py={fullPage ? '12' : '8'}
     >
       <chakra.div
         animation="spin 1s linear infinite"
@@ -41,7 +41,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       />
       {message && (
         <chakra.div textAlign="center">
-          <chakra.p color="text" fontWeight="semibold" fontSize="lg">
+          <chakra.p color="text" fontSize="lg" fontWeight="semibold">
             {message}
           </chakra.p>
           <chakra.p color="text.subtle" fontSize="sm" mt="1">

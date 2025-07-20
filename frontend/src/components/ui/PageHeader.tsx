@@ -20,11 +20,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 }) => {
   return (
     <chakra.div
-      display="flex"
-      justifyContent="space-between"
       alignItems={{ base: 'flex-start', md: 'center' }}
+      display="flex"
       flexDirection={{ base: 'column', md: 'row' }}
       gap="4"
+      justifyContent="space-between"
       mb="8"
     >
       <chakra.div>
@@ -43,9 +43,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         )}
         {children}
       </chakra.div>
-      
+
       {actions && (
-        <chakra.div display="flex" gap="3" flexShrink="0">
+        <chakra.div display="flex" flexShrink="0" gap="3">
           {actions}
         </chakra.div>
       )}

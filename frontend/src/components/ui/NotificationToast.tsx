@@ -4,12 +4,19 @@
 
 import { chakra } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiAlertTriangle } from 'react-icons/fi';
+import {
+  FiAlertCircle,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiInfo,
+  FiX,
+} from 'react-icons/fi';
 import { useUIStore } from '@/store';
 
 const NotificationToast: React.FC = () => {
   const { notifications, removeNotification } = useUIStore();
-  const [visibleNotifications, setVisibleNotifications] = useState(notifications);
+  const [visibleNotifications, setVisibleNotifications] =
+    useState(notifications);
 
   useEffect(() => {
     setVisibleNotifications(notifications);
@@ -67,16 +74,16 @@ const NotificationToast: React.FC = () => {
 
   return (
     <chakra.div
-      position="fixed"
-      top="4"
-      right="4"
-      zIndex="100"
       display="flex"
       flexDirection="column"
       gap="3"
       maxW="md"
-      w="full"
       pointerEvents="none"
+      position="fixed"
+      right="4"
+      top="4"
+      w="full"
+      zIndex="9999"
     >
       {visibleNotifications.map((notification) => {
         const colors = getNotificationColors(notification.type);
@@ -84,24 +91,24 @@ const NotificationToast: React.FC = () => {
 
         return (
           <chakra.div
-            key={notification.id}
+            animation="fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+            backdropFilter="blur(8px)"
             bg={colors.bg}
             border="1px solid"
             borderColor={colors.border}
             borderRadius="lg"
             boxShadow="lg"
-            p="4"
-            position="relative"
-            animation="fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-            backdropFilter="blur(8px)"
-            pointerEvents="auto"
+            key={notification.id}
             maxW="full"
+            p="4"
+            pointerEvents="auto"
+            position="relative"
           >
-            <chakra.div display="flex" alignItems="flex-start" gap="3">
+            <chakra.div alignItems="flex-start" display="flex" gap="3">
               <chakra.div color={colors.icon} flexShrink="0" mt="1">
                 {icon}
               </chakra.div>
-              
+
               <chakra.div flex="1" minW="0">
                 <chakra.p
                   color={colors.text}
@@ -112,12 +119,8 @@ const NotificationToast: React.FC = () => {
                 >
                   {notification.message}
                 </chakra.p>
-                
-                <chakra.p
-                  color="text.muted"
-                  fontSize="xs"
-                  mt="1"
-                >
+
+                <chakra.p color="text.muted" fontSize="xs" mt="1">
                   {new Date(notification.timestamp).toLocaleTimeString()}
                 </chakra.p>
               </chakra.div>
@@ -141,21 +144,21 @@ const NotificationToast: React.FC = () => {
             {/* Progress bar for auto-close */}
             {notification.autoClose && (
               <chakra.div
-                position="absolute"
-                bottom="0"
-                left="0"
-                right="0"
-                h="1"
+                animation="progressBar 5s linear"
                 bg={colors.icon}
                 borderRadius="0 0 lg lg"
-                animation="progressBar 5s linear"
+                bottom="0"
+                h="1"
+                left="0"
                 opacity="0.3"
+                position="absolute"
+                right="0"
               />
             )}
           </chakra.div>
         );
       })}
-      
+
       <style>
         {`
           @keyframes progressBar {
