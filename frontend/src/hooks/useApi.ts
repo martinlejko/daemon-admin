@@ -7,6 +7,7 @@ import type { AxiosError } from 'axios';
 import { api } from '@/lib/axios';
 import type {
   ApiError,
+  LogLevel,
   Server,
   ServerConnectionTestResponse,
   ServerCreateRequest,
@@ -21,11 +22,10 @@ import type {
   ServiceListResponse,
   ServiceLogsRequest,
   ServiceLogsResponse,
+  ServiceRollbackRequest,
   ServiceStatsResponse,
   ServiceUpdateRequest,
   ServiceUpdateResponse,
-  ServiceRollbackRequest,
-  LogLevel,
 } from '@/types';
 
 // Server API hooks
@@ -191,15 +191,29 @@ export const useServiceLogs = () => {
   return useMutation<
     ServiceLogsResponse,
     AxiosError<ApiError>,
-    { serviceId: number; lines?: number; since?: string; until?: string; priority?: string; grep?: string }
+    {
+      serviceId: number;
+      lines?: number;
+      since?: string;
+      until?: string;
+      priority?: string;
+      grep?: string;
+    }
   >({
-    mutationFn: async ({ serviceId, lines = 100, since, until, priority, grep }) => {
+    mutationFn: async ({
+      serviceId,
+      lines = 100,
+      since,
+      until,
+      priority,
+      grep,
+    }) => {
       const params: any = { lines };
       if (since) params.since = since;
       if (until) params.until = until;
       if (priority) params.priority = priority;
       if (grep) params.grep = grep;
-      
+
       const response = await api.get(`/services/${serviceId}/logs`, { params });
       return response.data;
     },
@@ -268,7 +282,10 @@ export const useRollbackServiceConfiguration = () => {
     { serviceId: number; rollbackData: ServiceRollbackRequest }
   >({
     mutationFn: async ({ serviceId, rollbackData }) => {
-      const response = await api.post(`/services/${serviceId}/rollback`, rollbackData);
+      const response = await api.post(
+        `/services/${serviceId}/rollback`,
+        rollbackData
+      );
       return response.data;
     },
     onSuccess: (_, { serviceId }) => {

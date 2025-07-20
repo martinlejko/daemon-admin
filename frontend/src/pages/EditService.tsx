@@ -21,13 +21,12 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import PageHeader from '@/components/ui/PageHeader';
 import StatusBadge from '@/components/ui/StatusBadge';
 import {
+  useRollbackServiceConfiguration,
   useService,
   useUpdateService,
   useValidateServiceUpdate,
-  useRollbackServiceConfiguration,
 } from '@/hooks/useApi';
 import { useUIStore } from '@/store';
-import { RestartPolicy } from '@/types';
 import type {
   Service,
   ServiceEditFormData,
@@ -37,6 +36,7 @@ import type {
   ServiceUpdateRequest,
   SystemdServiceType,
 } from '@/types';
+import { RestartPolicy } from '@/types';
 
 const EditService: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -81,7 +81,10 @@ const EditService: React.FC = () => {
       setBreadcrumbs([
         { label: 'Dashboard', href: '/' },
         { label: 'Services', href: '/services' },
-        { label: service.display_name || service.name, href: `/services/${service.id}` },
+        {
+          label: service.display_name || service.name,
+          href: `/services/${service.id}`,
+        },
         { label: 'Edit' },
       ]);
 
@@ -149,7 +152,11 @@ const EditService: React.FC = () => {
     },
   ];
 
-  const handleFormChange = (section: keyof ServiceEditFormData, field: string, value: any) => {
+  const handleFormChange = (
+    section: keyof ServiceEditFormData,
+    field: string,
+    value: any
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [section]: {
@@ -159,7 +166,10 @@ const EditService: React.FC = () => {
     }));
   };
 
-  const handleOverrideConfigChange = (field: keyof ServiceOverrideConfig, value: any) => {
+  const handleOverrideConfigChange = (
+    field: keyof ServiceOverrideConfig,
+    value: any
+  ) => {
     setFormData((prev) => ({
       ...prev,
       overrideConfig: {
@@ -176,7 +186,10 @@ const EditService: React.FC = () => {
       const updateRequest: ServiceUpdateRequest = {
         display_name: formData.basicInfo.display_name || undefined,
         description: formData.basicInfo.description || undefined,
-        override_config: Object.keys(formData.overrideConfig).length > 0 ? formData.overrideConfig : undefined,
+        override_config:
+          Object.keys(formData.overrideConfig).length > 0
+            ? formData.overrideConfig
+            : undefined,
         auto_restart: formData.management.auto_restart,
         is_managed: formData.management.is_managed,
         is_monitored: formData.management.is_monitored,
@@ -221,7 +234,10 @@ const EditService: React.FC = () => {
       const updateRequest: ServiceUpdateRequest = {
         display_name: formData.basicInfo.display_name || undefined,
         description: formData.basicInfo.description || undefined,
-        override_config: Object.keys(formData.overrideConfig).length > 0 ? formData.overrideConfig : undefined,
+        override_config:
+          Object.keys(formData.overrideConfig).length > 0
+            ? formData.overrideConfig
+            : undefined,
         auto_restart: formData.management.auto_restart,
         is_managed: formData.management.is_managed,
         is_monitored: formData.management.is_monitored,
@@ -313,7 +329,8 @@ const EditService: React.FC = () => {
                 Service not found
               </chakra.h3>
               <chakra.p color="text.subtle" mb="6">
-                The service you're trying to edit doesn't exist or has been removed.
+                The service you're trying to edit doesn't exist or has been
+                removed.
               </chakra.p>
               <Link to="/services">
                 <Button leftIcon={<FiArrowLeft />}>Back to Services</Button>
@@ -346,7 +363,9 @@ const EditService: React.FC = () => {
                 Only managed services can be modified through the web interface.
               </chakra.p>
               <Link to={`/services/${service.id}`}>
-                <Button leftIcon={<FiArrowLeft />}>Back to Service Details</Button>
+                <Button leftIcon={<FiArrowLeft />}>
+                  Back to Service Details
+                </Button>
               </Link>
             </chakra.div>
           </Card>
@@ -427,7 +446,12 @@ const EditService: React.FC = () => {
         {mode === 'preview' && validationResult && (
           <Card mb="6">
             <chakra.div mb="4">
-              <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
+              <chakra.h3
+                color="text"
+                fontSize="lg"
+                fontWeight="semibold"
+                mb="2"
+              >
                 Configuration Preview
               </chakra.h3>
               <chakra.p color="text.subtle" fontSize="sm">
@@ -435,53 +459,74 @@ const EditService: React.FC = () => {
               </chakra.p>
             </chakra.div>
 
-            {validationResult.validation_errors && validationResult.validation_errors.length > 0 && (
-              <chakra.div
-                bg="red.50"
-                border="1px solid"
-                borderColor="red.200"
-                borderRadius="md"
-                mb="4"
-                p="4"
-              >
-                <chakra.h4 color="red.800" fontSize="sm" fontWeight="semibold" mb="2">
-                  Validation Errors
-                </chakra.h4>
-                <chakra.ul color="red.700" fontSize="sm">
-                  {validationResult.validation_errors.map((error: string, index: number) => (
-                    <chakra.li key={index} mb="1">
-                      • {error}
-                    </chakra.li>
-                  ))}
-                </chakra.ul>
-              </chakra.div>
-            )}
+            {validationResult.validation_errors &&
+              validationResult.validation_errors.length > 0 && (
+                <chakra.div
+                  bg="red.50"
+                  border="1px solid"
+                  borderColor="red.200"
+                  borderRadius="md"
+                  mb="4"
+                  p="4"
+                >
+                  <chakra.h4
+                    color="red.800"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    mb="2"
+                  >
+                    Validation Errors
+                  </chakra.h4>
+                  <chakra.ul color="red.700" fontSize="sm">
+                    {validationResult.validation_errors.map(
+                      (error: string, index: number) => (
+                        <chakra.li key={index} mb="1">
+                          • {error}
+                        </chakra.li>
+                      )
+                    )}
+                  </chakra.ul>
+                </chakra.div>
+              )}
 
-            {validationResult.validation_warnings && validationResult.validation_warnings.length > 0 && (
-              <chakra.div
-                bg="yellow.50"
-                border="1px solid"
-                borderColor="yellow.200"
-                borderRadius="md"
-                mb="4"
-                p="4"
-              >
-                <chakra.h4 color="yellow.800" fontSize="sm" fontWeight="semibold" mb="2">
-                  Warnings
-                </chakra.h4>
-                <chakra.ul color="yellow.700" fontSize="sm">
-                  {validationResult.validation_warnings.map((warning: string, index: number) => (
-                    <chakra.li key={index} mb="1">
-                      • {warning}
-                    </chakra.li>
-                  ))}
-                </chakra.ul>
-              </chakra.div>
-            )}
+            {validationResult.validation_warnings &&
+              validationResult.validation_warnings.length > 0 && (
+                <chakra.div
+                  bg="yellow.50"
+                  border="1px solid"
+                  borderColor="yellow.200"
+                  borderRadius="md"
+                  mb="4"
+                  p="4"
+                >
+                  <chakra.h4
+                    color="yellow.800"
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    mb="2"
+                  >
+                    Warnings
+                  </chakra.h4>
+                  <chakra.ul color="yellow.700" fontSize="sm">
+                    {validationResult.validation_warnings.map(
+                      (warning: string, index: number) => (
+                        <chakra.li key={index} mb="1">
+                          • {warning}
+                        </chakra.li>
+                      )
+                    )}
+                  </chakra.ul>
+                </chakra.div>
+              )}
 
             {previewContent && (
               <chakra.div>
-                <chakra.h4 color="text" fontSize="sm" fontWeight="semibold" mb="2">
+                <chakra.h4
+                  color="text"
+                  fontSize="sm"
+                  fontWeight="semibold"
+                  mb="2"
+                >
                   Override File Content
                 </chakra.h4>
                 <chakra.pre
@@ -545,7 +590,12 @@ const EditService: React.FC = () => {
             {/* Basic Information */}
             <Card>
               <chakra.div mb="4">
-                <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
+                <chakra.h3
+                  color="text"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  mb="2"
+                >
                   Basic Information
                 </chakra.h3>
                 <chakra.p color="text.subtle" fontSize="sm">
@@ -569,7 +619,13 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleFormChange('basicInfo', 'display_name', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'basicInfo',
+                        'display_name',
+                        e.target.value
+                      )
+                    }
                     p="2"
                     placeholder="Enter display name"
                     value={formData.basicInfo.display_name}
@@ -592,7 +648,13 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleFormChange('basicInfo', 'description', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'basicInfo',
+                        'description',
+                        e.target.value
+                      )
+                    }
                     p="2"
                     placeholder="Enter service description"
                     rows={3}
@@ -606,15 +668,25 @@ const EditService: React.FC = () => {
             {/* Service Override Configuration */}
             <Card>
               <chakra.div mb="4">
-                <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
+                <chakra.h3
+                  color="text"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  mb="2"
+                >
                   Service Configuration Override
                 </chakra.h3>
                 <chakra.p color="text.subtle" fontSize="sm">
-                  Override specific systemd service parameters using override directories
+                  Override specific systemd service parameters using override
+                  directories
                 </chakra.p>
               </chakra.div>
 
-              <chakra.div display="grid" gap="4" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}>
+              <chakra.div
+                display="grid"
+                gap="4"
+                gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
+              >
                 <chakra.div>
                   <chakra.label
                     color="text"
@@ -630,7 +702,12 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleOverrideConfigChange('restart_policy', e.target.value as RestartPolicy)}
+                    onChange={(e) =>
+                      handleOverrideConfigChange(
+                        'restart_policy',
+                        e.target.value as RestartPolicy
+                      )
+                    }
                     p="2"
                     value={formData.overrideConfig.restart_policy || ''}
                     width="100%"
@@ -658,7 +735,9 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleOverrideConfigChange('user', e.target.value)}
+                    onChange={(e) =>
+                      handleOverrideConfigChange('user', e.target.value)
+                    }
                     p="2"
                     placeholder="Run as user (e.g., www-data)"
                     value={formData.overrideConfig.user || ''}
@@ -681,7 +760,12 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleOverrideConfigChange('working_directory', e.target.value)}
+                    onChange={(e) =>
+                      handleOverrideConfigChange(
+                        'working_directory',
+                        e.target.value
+                      )
+                    }
                     p="2"
                     placeholder="/path/to/working/directory"
                     value={formData.overrideConfig.working_directory || ''}
@@ -704,7 +788,12 @@ const EditService: React.FC = () => {
                     border="1px solid"
                     borderColor="gray.300"
                     borderRadius="md"
-                    onChange={(e) => handleOverrideConfigChange('restart_sec', Number.parseInt(e.target.value) || undefined)}
+                    onChange={(e) =>
+                      handleOverrideConfigChange(
+                        'restart_sec',
+                        Number.parseInt(e.target.value) || undefined
+                      )
+                    }
                     p="2"
                     placeholder="3"
                     type="number"
@@ -729,14 +818,17 @@ const EditService: React.FC = () => {
                   border="1px solid"
                   borderColor="gray.300"
                   borderRadius="md"
-                  onChange={(e) => handleOverrideConfigChange('exec_start', e.target.value)}
+                  onChange={(e) =>
+                    handleOverrideConfigChange('exec_start', e.target.value)
+                  }
                   p="2"
                   placeholder="Leave empty to keep current start command"
                   value={formData.overrideConfig.exec_start || ''}
                   width="100%"
                 />
                 <chakra.p color="text.subtle" fontSize="xs" mt="1">
-                  Override the service start command. Leave empty to keep the current command.
+                  Override the service start command. Leave empty to keep the
+                  current command.
                 </chakra.p>
               </chakra.div>
             </Card>
@@ -744,7 +836,12 @@ const EditService: React.FC = () => {
             {/* Management Settings */}
             <Card>
               <chakra.div mb="4">
-                <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
+                <chakra.h3
+                  color="text"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  mb="2"
+                >
                   Management Settings
                 </chakra.h3>
                 <chakra.p color="text.subtle" fontSize="sm">
@@ -756,7 +853,13 @@ const EditService: React.FC = () => {
                 <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
                     checked={formData.management.auto_restart}
-                    onChange={(e) => handleFormChange('management', 'auto_restart', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'management',
+                        'auto_restart',
+                        e.target.checked
+                      )
+                    }
                     type="checkbox"
                   />
                   <chakra.span color="text" fontSize="sm">
@@ -767,7 +870,13 @@ const EditService: React.FC = () => {
                 <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
                     checked={formData.management.is_managed}
-                    onChange={(e) => handleFormChange('management', 'is_managed', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'management',
+                        'is_managed',
+                        e.target.checked
+                      )
+                    }
                     type="checkbox"
                   />
                   <chakra.span color="text" fontSize="sm">
@@ -778,7 +887,13 @@ const EditService: React.FC = () => {
                 <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
                     checked={formData.management.is_monitored}
-                    onChange={(e) => handleFormChange('management', 'is_monitored', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'management',
+                        'is_monitored',
+                        e.target.checked
+                      )
+                    }
                     type="checkbox"
                   />
                   <chakra.span color="text" fontSize="sm">
@@ -791,7 +906,12 @@ const EditService: React.FC = () => {
             {/* Options */}
             <Card>
               <chakra.div mb="4">
-                <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
+                <chakra.h3
+                  color="text"
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  mb="2"
+                >
                   Update Options
                 </chakra.h3>
                 <chakra.p color="text.subtle" fontSize="sm">
@@ -803,7 +923,13 @@ const EditService: React.FC = () => {
                 <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
                     checked={formData.options.apply_immediately}
-                    onChange={(e) => handleFormChange('options', 'apply_immediately', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'options',
+                        'apply_immediately',
+                        e.target.checked
+                      )
+                    }
                     type="checkbox"
                   />
                   <chakra.span color="text" fontSize="sm">
@@ -814,7 +940,13 @@ const EditService: React.FC = () => {
                 <chakra.label alignItems="center" display="flex" gap="2">
                   <chakra.input
                     checked={formData.options.create_backup}
-                    onChange={(e) => handleFormChange('options', 'create_backup', e.target.checked)}
+                    onChange={(e) =>
+                      handleFormChange(
+                        'options',
+                        'create_backup',
+                        e.target.checked
+                      )
+                    }
                     type="checkbox"
                   />
                   <chakra.span color="text" fontSize="sm">

@@ -38,7 +38,7 @@ const ServiceDetail: React.FC = () => {
     since: '',
     until: '',
     priority: '',
-    grep: ''
+    grep: '',
   });
 
   const serviceId = Number.parseInt(id || '0', 10);
@@ -179,10 +179,7 @@ const ServiceDetail: React.FC = () => {
               {service.is_managed && (
                 <>
                   <Link to={`/services/${service.id}/edit`}>
-                    <Button
-                      leftIcon={<FiEdit3 />}
-                      variant="secondary"
-                    >
+                    <Button leftIcon={<FiEdit3 />} variant="secondary">
                       Edit
                     </Button>
                   </Link>
@@ -553,18 +550,32 @@ const ServiceDetail: React.FC = () => {
             </chakra.div>
 
             {/* Log Filters */}
-            <chakra.div
-              bg="bg.muted"
-              borderRadius="md"
-              mb="4"
-              p="4"
-            >
-              <chakra.h4 color="text" fontSize="sm" fontWeight="semibold" mb="3">
+            <chakra.div bg="bg.muted" borderRadius="md" mb="4" p="4">
+              <chakra.h4
+                color="text"
+                fontSize="sm"
+                fontWeight="semibold"
+                mb="3"
+              >
                 Log Filters
               </chakra.h4>
-              <chakra.div display="grid" gap="3" gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}>
+              <chakra.div
+                display="grid"
+                gap="3"
+                gridTemplateColumns={{
+                  base: '1fr',
+                  md: 'repeat(2, 1fr)',
+                  lg: 'repeat(3, 1fr)',
+                }}
+              >
                 <chakra.div>
-                  <chakra.label color="text.subtle" display="block" fontSize="xs" fontWeight="medium" mb="1">
+                  <chakra.label
+                    color="text.subtle"
+                    display="block"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    mb="1"
+                  >
                     Lines
                   </chakra.label>
                   <chakra.input
@@ -573,7 +584,12 @@ const ServiceDetail: React.FC = () => {
                     borderColor="gray.300"
                     borderRadius="md"
                     fontSize="sm"
-                    onChange={(e) => setLogFilters(prev => ({ ...prev, lines: Number.parseInt(e.target.value) || 100 }))}
+                    onChange={(e) =>
+                      setLogFilters((prev) => ({
+                        ...prev,
+                        lines: Number.parseInt(e.target.value) || 100,
+                      }))
+                    }
                     p="2"
                     type="number"
                     value={logFilters.lines}
@@ -582,7 +598,13 @@ const ServiceDetail: React.FC = () => {
                 </chakra.div>
 
                 <chakra.div>
-                  <chakra.label color="text.subtle" display="block" fontSize="xs" fontWeight="medium" mb="1">
+                  <chakra.label
+                    color="text.subtle"
+                    display="block"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    mb="1"
+                  >
                     Priority Level
                   </chakra.label>
                   <chakra.select
@@ -591,7 +613,12 @@ const ServiceDetail: React.FC = () => {
                     borderColor="gray.300"
                     borderRadius="md"
                     fontSize="sm"
-                    onChange={(e) => setLogFilters(prev => ({ ...prev, priority: e.target.value }))}
+                    onChange={(e) =>
+                      setLogFilters((prev) => ({
+                        ...prev,
+                        priority: e.target.value,
+                      }))
+                    }
                     p="2"
                     value={logFilters.priority}
                     width="100%"
@@ -609,7 +636,13 @@ const ServiceDetail: React.FC = () => {
                 </chakra.div>
 
                 <chakra.div>
-                  <chakra.label color="text.subtle" display="block" fontSize="xs" fontWeight="medium" mb="1">
+                  <chakra.label
+                    color="text.subtle"
+                    display="block"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    mb="1"
+                  >
                     Search Text
                   </chakra.label>
                   <chakra.input
@@ -618,7 +651,12 @@ const ServiceDetail: React.FC = () => {
                     borderColor="gray.300"
                     borderRadius="md"
                     fontSize="sm"
-                    onChange={(e) => setLogFilters(prev => ({ ...prev, grep: e.target.value }))}
+                    onChange={(e) =>
+                      setLogFilters((prev) => ({
+                        ...prev,
+                        grep: e.target.value,
+                      }))
+                    }
                     p="2"
                     placeholder="Filter by text..."
                     value={logFilters.grep}
@@ -627,7 +665,13 @@ const ServiceDetail: React.FC = () => {
                 </chakra.div>
 
                 <chakra.div>
-                  <chakra.label color="text.subtle" display="block" fontSize="xs" fontWeight="medium" mb="1">
+                  <chakra.label
+                    color="text.subtle"
+                    display="block"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    mb="1"
+                  >
                     Since
                   </chakra.label>
                   <chakra.input
@@ -636,7 +680,12 @@ const ServiceDetail: React.FC = () => {
                     borderColor="gray.300"
                     borderRadius="md"
                     fontSize="sm"
-                    onChange={(e) => setLogFilters(prev => ({ ...prev, since: e.target.value }))}
+                    onChange={(e) =>
+                      setLogFilters((prev) => ({
+                        ...prev,
+                        since: e.target.value,
+                      }))
+                    }
                     p="2"
                     placeholder="1 hour ago, today..."
                     value={logFilters.since}
@@ -645,7 +694,13 @@ const ServiceDetail: React.FC = () => {
                 </chakra.div>
 
                 <chakra.div>
-                  <chakra.label color="text.subtle" display="block" fontSize="xs" fontWeight="medium" mb="1">
+                  <chakra.label
+                    color="text.subtle"
+                    display="block"
+                    fontSize="xs"
+                    fontWeight="medium"
+                    mb="1"
+                  >
                     Until
                   </chakra.label>
                   <chakra.input
@@ -654,7 +709,12 @@ const ServiceDetail: React.FC = () => {
                     borderColor="gray.300"
                     borderRadius="md"
                     fontSize="sm"
-                    onChange={(e) => setLogFilters(prev => ({ ...prev, until: e.target.value }))}
+                    onChange={(e) =>
+                      setLogFilters((prev) => ({
+                        ...prev,
+                        until: e.target.value,
+                      }))
+                    }
                     p="2"
                     placeholder="2025-01-01 12:00..."
                     value={logFilters.until}
@@ -677,7 +737,10 @@ const ServiceDetail: React.FC = () => {
                     {serviceLogsMutation.data.lines_returned} lines returned
                   </chakra.p>
                   <chakra.p color="text.subtle" fontSize="xs">
-                    Retrieved at {new Date(serviceLogsMutation.data.timestamp).toLocaleString()}
+                    Retrieved at{' '}
+                    {new Date(
+                      serviceLogsMutation.data.timestamp
+                    ).toLocaleString()}
                   </chakra.p>
                 </chakra.div>
                 <chakra.div
@@ -704,7 +767,8 @@ const ServiceDetail: React.FC = () => {
               <chakra.div color="text.subtle" py="8" textAlign="center">
                 <FiFileText size={32} style={{ margin: '0 auto 16px' }} />
                 <chakra.p fontSize="sm">
-                  Configure filters above and click "View Logs" to display log entries
+                  Configure filters above and click "View Logs" to display log
+                  entries
                 </chakra.p>
               </chakra.div>
             )}
