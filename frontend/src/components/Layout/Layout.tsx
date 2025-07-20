@@ -5,7 +5,7 @@
 import { chakra } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import { useUIStore } from '@/store';
-import NotificationToast from '../UI/NotificationToast';
+import NotificationToast from '../ui/NotificationToast';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
@@ -24,7 +24,7 @@ const Layout: React.FC = () => {
   const sidebarWidth = sidebarCollapsed ? '64px' : '280px';
 
   return (
-    <chakra.div h="100vh" overflow="hidden" bg="bg">
+    <chakra.div bg="bg" h="100vh" overflow="hidden">
       {/* Sidebar */}
       <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
 
@@ -43,14 +43,15 @@ const Layout: React.FC = () => {
         <chakra.div
           bg="bg.subtle"
           flex="1"
+          minH="0"
           overflow="auto"
           position="relative"
-          minH="0"
         >
           {/* Loading overlay */}
           {isLoading && (
             <chakra.div
               alignItems="center"
+              backdropFilter="blur(4px)"
               bg="blackAlpha.600"
               bottom="0"
               display="flex"
@@ -60,19 +61,18 @@ const Layout: React.FC = () => {
               right="0"
               top="0"
               zIndex="50"
-              backdropFilter="blur(4px)"
             >
               <chakra.div
                 alignItems="center"
                 bg="bg.surface"
+                border="1px solid"
+                borderColor="border.subtle"
                 borderRadius="xl"
                 boxShadow="lg"
                 display="flex"
                 flexDirection="column"
                 gap="4"
                 p="8"
-                border="1px solid"
-                borderColor="border.subtle"
               >
                 <chakra.div
                   animation="spin 1s linear infinite"
@@ -86,9 +86,9 @@ const Layout: React.FC = () => {
                 {loadingMessage && (
                   <chakra.div
                     color="text.subtle"
-                    textAlign="center"
                     fontSize="sm"
                     fontWeight="medium"
+                    textAlign="center"
                   >
                     {loadingMessage}
                   </chakra.div>

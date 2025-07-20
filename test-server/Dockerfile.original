@@ -1,0 +1,77 @@
+# Optimized test server with Alpine Linux and OpenRC
+FROM alpine:3.19
+
+# Set timezone and prevent interactive prompts
+ENV TZ=UTC
+ENV TERM=xterm
+
+# Install essential packages for SSH and service management
+RUN apk add --no-cache \
+    openrc \
+    openssh \
+    sudo \
+    python3 \
+    py3-pip \
+    bash \
+    curl \
+    shadow \
+    && rm -rf /var/cache/apk/*
+
+# Install python dependencies for test scripts
+RUN pip3 install --no-cache-dir psutil
+
+# Configure OpenRC (Alpine's init system)
+RUN rc-update add devfs sysinit \
+    && rc-update add dmesg sysinit \
+    && rc-update add mdev sysinit \
+    && rc-update add hwclock boot \
+    && rc-update add modules boot \
+    && rc-update add sysctl boot \
+    && rc-update add hostname boot \
+    && rc-update add bootmisc boot \
+    && rc-update add syslog boot \
+    && rc-update add mount-ro shutdown \
+    && rc-update add killprocs shutdown \
+    && rc-update add savecache shutdown
+
+# Configure SSH
+RUN ssh-keygen -A \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config \
+    && rc-update add sshd default
+
+# Create test user with home directory
+RUN addgroup -g 1000 testuser \
+    && adduser -D -u 1000 -G testuser -s /bin/bash testuser \
+    && echo 'testuser:testpass123' | chpasswd \
+    && echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
+    && mkdir -p /home/testuser/.ssh \
+    && chown testuser:testuser /home/testuser/.ssh \
+    && chmod 700 /home/testuser/.ssh
+
+# Create directories for test services
+RUN mkdir -p /opt/test-services /var/log/test-services \
+    && chown testuser:testuser /var/log/test-services
+
+# Copy test service scripts
+COPY scripts/ /opt/test-services/
+RUN chmod +x /opt/test-services/*
+
+# Copy OpenRC service files (Alpine style)
+COPY services-openrc/ /etc/init.d/
+RUN chmod +x /etc/init.d/test-* \
+    && rc-update add test-web-app default \
+    && rc-update add test-background-worker default \
+    && rc-update add test-api-server default \
+    && rc-update add test-monitoring default
+
+# Create startup script for container
+COPY start-openrc.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose SSH port
+EXPOSE 22
+
+# Use OpenRC as init system
+CMD ["/start.sh"]

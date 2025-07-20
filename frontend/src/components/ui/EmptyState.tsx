@@ -24,19 +24,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <chakra.div textAlign="center">
         {icon && (
           <chakra.div
+            color="text.muted"
             display="flex"
             justifyContent="center"
             mb="4"
-            color="text.muted"
           >
             {icon}
           </chakra.div>
         )}
-        <chakra.h3 fontSize="lg" fontWeight="semibold" mb="2" color="text">
+        <chakra.h3 color="text" fontSize="lg" fontWeight="semibold" mb="2">
           {title}
         </chakra.h3>
         {description && (
-          <chakra.p color="text.subtle" mb="6" maxW="md" mx="auto">
+          <chakra.p color="text.subtle" maxW="md" mb="6" mx="auto">
             {description}
           </chakra.p>
         )}

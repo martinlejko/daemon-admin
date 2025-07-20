@@ -1,0 +1,47 @@
+# Project-wide .dockerignore
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation and markdown files
+*.md
+docs/
+CLAUDE.md
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+logs/
+tmp/
+temp/
+.tmp/
+
+# Node modules (handled by specific service dockerignores)
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Docker files (to avoid recursive copy)
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Environment files
+.env*
+!.env.example

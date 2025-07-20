@@ -7,15 +7,16 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from '@/components/Layout/Layout';
-import Dashboard from '@/pages/Dashboard';
-import Servers from '@/pages/Servers';
-import ServerDetail from '@/pages/ServerDetail';
 import AddServer from '@/pages/AddServer';
+import Dashboard from '@/pages/Dashboard';
 import EditServer from '@/pages/EditServer';
-import Services from '@/pages/Services';
-import ServiceDetail from '@/pages/ServiceDetail';
-import Settings from '@/pages/Settings';
+import EditService from '@/pages/EditService';
 import NotFound from '@/pages/NotFound';
+import ServerDetail from '@/pages/ServerDetail';
+import Servers from '@/pages/Servers';
+import ServiceDetail from '@/pages/ServiceDetail';
+import Services from '@/pages/Services';
+import Settings from '@/pages/Settings';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ const App: React.FC = () => {
             {/* Service routes */}
             <Route element={<Services />} path="services" />
             <Route element={<ServiceDetail />} path="services/:id" />
+            <Route element={<EditService />} path="services/:id/edit" />
 
             {/* Settings routes */}
             <Route element={<Settings />} path="settings" />

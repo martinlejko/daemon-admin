@@ -3,7 +3,7 @@ name = "owleyes-backend"
 version = "0.1.0"
 description = "Owleyes - Linux server and systemd service management backend"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     # Web framework
     "fastapi>=0.116.1",

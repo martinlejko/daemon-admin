@@ -34,15 +34,15 @@ const variants = {
     color: 'text',
     borderWidth: '1px',
     borderColor: 'border',
-    _hover: { 
+    _hover: {
       bg: COLORS.BUTTON_SECONDARY_HOVER_LIGHT,
       borderColor: 'border.emphasis',
-      transform: 'translateY(-1px)'
+      transform: 'translateY(-1px)',
     },
     _active: { transform: 'translateY(0)' },
-    _dark: { 
+    _dark: {
       bg: COLORS.BUTTON_SECONDARY_BG_DARK,
-      _hover: { bg: COLORS.BUTTON_SECONDARY_HOVER_DARK }
+      _hover: { bg: COLORS.BUTTON_SECONDARY_HOVER_DARK },
     },
   },
   danger: {
@@ -54,12 +54,12 @@ const variants = {
   ghost: {
     bg: 'transparent',
     color: 'text.subtle',
-    _hover: { 
+    _hover: {
       bg: COLORS.BUTTON_GHOST_HOVER_LIGHT,
-      color: 'text' 
+      color: 'text',
     },
     _dark: {
-      _hover: { bg: COLORS.BUTTON_GHOST_HOVER_DARK }
+      _hover: { bg: COLORS.BUTTON_GHOST_HOVER_DARK },
     },
   },
 };
@@ -86,16 +86,16 @@ export const Button: React.FC<ButtonProps> = ({
     <chakra.button
       {...variants[variant]}
       {...sizes[size]}
+      _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
       alignItems="center"
       borderRadius="lg"
+      disabled={disabled || loading}
       display="flex"
       fontWeight="semibold"
       gap="2"
       justifyContent="center"
-      transition="all 0.2s"
-      _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
-      disabled={disabled || loading}
       onClick={onClick}
+      transition="all 0.2s"
       type={type}
       {...props}
     >
@@ -104,10 +104,10 @@ export const Button: React.FC<ButtonProps> = ({
           animation="spin 1s linear infinite"
           border="2px solid"
           borderColor="currentColor"
-          borderTopColor="transparent"
           borderRadius="full"
-          w="4"
+          borderTopColor="transparent"
           h="4"
+          w="4"
         />
       )}
       {!loading && leftIcon && leftIcon}

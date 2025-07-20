@@ -49,11 +49,11 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     <chakra.span
       {...statusColors[status]}
       {...sizes[size]}
+      alignItems="center"
       borderRadius="full"
+      display="inline-flex"
       fontWeight="semibold"
       textTransform="capitalize"
-      display="inline-flex"
-      alignItems="center"
       whiteSpace="nowrap"
     >
       {children}

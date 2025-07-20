@@ -277,10 +277,10 @@ const ServerDetail: React.FC = () => {
               borderColor="gray.300"
               borderRadius="md"
               borderWidth="1px"
+              disabled={testConnectionMutation.isPending}
               display="flex"
               fontSize="sm"
               gap="2"
-              disabled={testConnectionMutation.isPending}
               onClick={handleTestConnection}
               px="4"
               py="2"
@@ -295,10 +295,10 @@ const ServerDetail: React.FC = () => {
               borderColor="gray.300"
               borderRadius="md"
               borderWidth="1px"
+              disabled={gatherInfoMutation.isPending}
               display="flex"
               fontSize="sm"
               gap="2"
-              disabled={gatherInfoMutation.isPending}
               onClick={handleGatherInfo}
               px="4"
               py="2"
@@ -331,10 +331,10 @@ const ServerDetail: React.FC = () => {
               bg="red.500"
               borderRadius="md"
               color="white"
+              disabled={deleteServerMutation.isPending}
               display="flex"
               fontSize="sm"
               gap="2"
-              disabled={deleteServerMutation.isPending}
               onClick={handleDeleteServer}
               px="4"
               py="2"

@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
   const hasError = serverStatsError || serviceStatsError || healthError;
 
   return (
-    <chakra.div p="8" bg="bg.subtle" minH="100vh">
+    <chakra.div bg="bg.subtle" minH="100vh" p="8">
       <chakra.div
         alignItems="stretch"
         display="flex"
@@ -67,12 +67,12 @@ const Dashboard: React.FC = () => {
         mx="auto"
       >
         {/* Header */}
-        <chakra.div 
-          display="flex" 
-          justifyContent="space-between"
+        <chakra.div
           alignItems={{ base: 'flex-start', md: 'center' }}
+          display="flex"
           flexDirection={{ base: 'column', md: 'row' }}
           gap="4"
+          justifyContent="space-between"
         >
           <chakra.div
             alignItems="flex-start"
@@ -103,14 +103,14 @@ const Dashboard: React.FC = () => {
               borderColor="border"
               borderRadius="lg"
               borderWidth="1px"
+              boxShadow="sm"
+              color="text.subtle"
               disabled={isLoading}
               display="flex"
               justifyContent="center"
               onClick={handleRefresh}
               p="3"
-              boxShadow="sm"
               transition="all 0.2s"
-              color="text.subtle"
             >
               <chakra.div
                 animation={isLoading ? 'spin 1s linear infinite' : undefined}
@@ -120,17 +120,20 @@ const Dashboard: React.FC = () => {
             </chakra.button>
             <Link to="/servers/new">
               <chakra.button
-                _hover={{ bg: 'accent.emphasis', transform: 'translateY(-1px)' }}
+                _hover={{
+                  bg: 'accent.emphasis',
+                  transform: 'translateY(-1px)',
+                }}
                 alignItems="center"
                 bg="accent"
                 borderRadius="lg"
+                boxShadow="sm"
                 color="white"
                 display="flex"
+                fontWeight="semibold"
                 gap="2"
                 px="6"
                 py="3"
-                fontWeight="semibold"
-                boxShadow="sm"
                 transition="all 0.2s"
               >
                 <FiPlus size={18} />
@@ -148,24 +151,19 @@ const Dashboard: React.FC = () => {
             border="1px solid"
             borderColor="negative.muted"
             borderRadius="xl"
+            boxShadow="sm"
             display="flex"
             gap="4"
             p="6"
-            boxShadow="sm"
           >
-            <chakra.div
-              bg="negative"
-              borderRadius="full"
-              p="2"
-              color="white"
-            >
+            <chakra.div bg="negative" borderRadius="full" color="white" p="2">
               <FiXCircle size={20} />
             </chakra.div>
             <chakra.div>
               <chakra.h3
                 color="negative.emphasis"
-                fontWeight="semibold"
                 fontSize="lg"
+                fontWeight="semibold"
               >
                 API Connection Error
               </chakra.h3>
@@ -181,11 +179,11 @@ const Dashboard: React.FC = () => {
         {isLoading && !serverStats && !serviceStats && (
           <chakra.div
             bg="bg.surface"
+            border="1px solid"
+            borderColor="border.subtle"
             borderRadius="xl"
             boxShadow="md"
             p="12"
-            border="1px solid"
-            borderColor="border.subtle"
           >
             <chakra.div
               alignItems="center"
@@ -203,7 +201,7 @@ const Dashboard: React.FC = () => {
                 w="16"
               />
               <chakra.div textAlign="center">
-                <chakra.p color="text" fontWeight="semibold" fontSize="lg">
+                <chakra.p color="text" fontSize="lg" fontWeight="semibold">
                   Loading dashboard data...
                 </chakra.p>
                 <chakra.p color="text.subtle" fontSize="sm" mt="1">
@@ -229,13 +227,13 @@ const Dashboard: React.FC = () => {
             {serverStats && (
               <>
                 <chakra.div
+                  _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
                   bg="bg.surface"
+                  border="1px solid"
+                  borderColor="border.subtle"
                   borderRadius="xl"
                   boxShadow="md"
                   p="6"
-                  border="1px solid"
-                  borderColor="border.subtle"
-                  _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
                   transition="all 0.2s"
                 >
                   <chakra.div
@@ -253,20 +251,20 @@ const Dashboard: React.FC = () => {
                         color="text.subtle"
                         fontSize="sm"
                         fontWeight="medium"
-                        textTransform="uppercase"
                         letterSpacing="wide"
+                        textTransform="uppercase"
                       >
                         Total Servers
                       </chakra.p>
-                      <chakra.p fontSize="3xl" fontWeight="bold" color="text">
+                      <chakra.p color="text" fontSize="3xl" fontWeight="bold">
                         {serverStats.total_servers}
                       </chakra.p>
                     </chakra.div>
                     <chakra.div
                       bg="accent.subtle"
                       borderRadius="lg"
-                      p="3"
                       color="accent"
+                      p="3"
                     >
                       <FiServer size={24} />
                     </chakra.div>

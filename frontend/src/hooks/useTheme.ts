@@ -31,14 +31,14 @@ export const useTheme = () => {
     theme,
     resolvedTheme,
     systemTheme,
-    
+
     // Theme setters
     setTheme,
     toggleTheme,
     setLightTheme,
     setDarkTheme,
     setSystemTheme,
-    
+
     // Computed states
     isDark: resolvedTheme === 'dark',
     isLight: resolvedTheme === 'light',

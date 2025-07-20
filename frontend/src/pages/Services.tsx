@@ -493,7 +493,11 @@ const Services: React.FC = () => {
               <>
                 {/* Table Header */}
                 <chakra.div
-                  _dark={{ borderColor: 'gray.700', bg: 'gray.800', color: 'gray.400' }}
+                  _dark={{
+                    borderColor: 'gray.700',
+                    bg: 'gray.800',
+                    color: 'gray.400',
+                  }}
                   bg="gray.50"
                   borderBottomWidth="1px"
                   borderColor="gray.200"

@@ -83,6 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         bg="bg.surface"
         borderColor="border"
         borderRightWidth="1px"
+        boxShadow={{ base: isOpen ? 'lg' : 'none', lg: 'sm' }}
         display="flex"
         flexDirection="column"
         h="100vh"
@@ -96,7 +97,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
         w={sidebarCollapsed ? '16' : '70'}
         zIndex="20"
-        boxShadow={{ base: isOpen ? 'lg' : 'none', lg: 'sm' }}
       >
         {/* Header */}
         <chakra.div
@@ -114,11 +114,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 alignItems="center"
                 bg="accent"
                 borderRadius="lg"
+                boxShadow="sm"
                 display="flex"
                 h="9"
                 justifyContent="center"
                 w="9"
-                boxShadow="sm"
               >
                 <chakra.span color="white" fontSize="xl" fontWeight="bold">
                   O
@@ -145,11 +145,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               }
               bg="transparent"
               borderRadius="md"
+              color="text.subtle"
               display={{ base: 'none', lg: 'flex' }}
               justifyContent="center"
               onClick={toggleSidebarCollapsed}
               p="2"
-              color="text.subtle"
               transition="all 0.2s"
             >
               {sidebarCollapsed ? <FiChevronRight /> : <FiChevronLeft />}
@@ -162,11 +162,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               aria-label="Close sidebar"
               bg="transparent"
               borderRadius="md"
+              color="text.subtle"
               display={{ base: 'flex', lg: 'none' }}
               justifyContent="center"
               onClick={onClose}
               p="2"
-              color="text.subtle"
               transition="all 0.2s"
             >
               <FiX />
@@ -200,26 +200,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   borderRadius="lg"
                   color={active ? 'white' : 'text.subtle'}
                   display="flex"
-                  fontWeight={active ? 'semibold' : 'medium'}
                   fontSize="sm"
+                  fontWeight={active ? 'semibold' : 'medium'}
                   gap="3"
                   h="11"
                   justifyContent={sidebarCollapsed ? 'center' : 'flex-start'}
-                  px={sidebarCollapsed ? '0' : '4'}
-                  width="100%"
-                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                  position="relative"
                   overflow="hidden"
+                  position="relative"
+                  px={sidebarCollapsed ? '0' : '4'}
+                  transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                  width="100%"
                 >
                   {active && (
                     <chakra.div
-                      position="absolute"
-                      left="0"
-                      top="0"
-                      bottom="0"
-                      width="3px"
                       bg="white"
                       borderRadius="0 2px 2px 0"
+                      bottom="0"
+                      left="0"
+                      position="absolute"
+                      top="0"
+                      width="3px"
                     />
                   )}
                   <Icon size={18} />
@@ -234,11 +234,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           borderRadius="full"
                           color="white"
                           fontSize="xs"
+                          fontWeight="semibold"
                           minW="5"
                           px="2"
                           py="1"
                           textAlign="center"
-                          fontWeight="semibold"
                         >
                           {item.badge}
                         </chakra.span>
@@ -256,19 +256,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <>
             <chakra.hr borderColor="border.subtle" />
             <chakra.div p="4">
-              <chakra.p 
-                color="text.muted" 
-                fontSize="xs" 
-                textAlign="center"
+              <chakra.p
+                color="text.muted"
+                fontSize="xs"
                 fontWeight="medium"
+                textAlign="center"
               >
                 Owleyes v1.0.0
               </chakra.p>
-              <chakra.p 
-                color="text.muted" 
-                fontSize="xs" 
-                textAlign="center"
+              <chakra.p
+                color="text.muted"
+                fontSize="xs"
                 mt="1"
+                textAlign="center"
               >
                 Server Management
               </chakra.p>

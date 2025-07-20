@@ -19,8 +19,13 @@ import type {
   ServiceDiscoveryResponse,
   ServiceFilterParams,
   ServiceListResponse,
+  ServiceLogsRequest,
   ServiceLogsResponse,
   ServiceStatsResponse,
+  ServiceUpdateRequest,
+  ServiceUpdateResponse,
+  ServiceRollbackRequest,
+  LogLevel,
 } from '@/types';
 
 // Server API hooks
@@ -186,12 +191,16 @@ export const useServiceLogs = () => {
   return useMutation<
     ServiceLogsResponse,
     AxiosError<ApiError>,
-    { serviceId: number; lines?: number }
+    { serviceId: number; lines?: number; since?: string; until?: string; priority?: string; grep?: string }
   >({
-    mutationFn: async ({ serviceId, lines = 100 }) => {
-      const response = await api.get(`/services/${serviceId}/logs`, {
-        params: { lines },
-      });
+    mutationFn: async ({ serviceId, lines = 100, since, until, priority, grep }) => {
+      const params: any = { lines };
+      if (since) params.since = since;
+      if (until) params.until = until;
+      if (priority) params.priority = priority;
+      if (grep) params.grep = grep;
+      
+      const response = await api.get(`/services/${serviceId}/logs`, { params });
       return response.data;
     },
   });
@@ -227,6 +236,61 @@ export const useServiceStats = () => {
     },
     staleTime: 60_000, // 1 minute
     refetchInterval: 60_000, // Refetch every minute
+  });
+};
+
+// Service editing hooks
+export const useUpdateService = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ServiceUpdateResponse,
+    AxiosError<ApiError>,
+    { serviceId: number; updateData: ServiceUpdateRequest }
+  >({
+    mutationFn: async ({ serviceId, updateData }) => {
+      const response = await api.put(`/services/${serviceId}`, updateData);
+      return response.data;
+    },
+    onSuccess: (_, { serviceId }) => {
+      queryClient.invalidateQueries({ queryKey: ['service', serviceId] });
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+  });
+};
+
+export const useRollbackServiceConfiguration = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ServiceUpdateResponse,
+    AxiosError<ApiError>,
+    { serviceId: number; rollbackData: ServiceRollbackRequest }
+  >({
+    mutationFn: async ({ serviceId, rollbackData }) => {
+      const response = await api.post(`/services/${serviceId}/rollback`, rollbackData);
+      return response.data;
+    },
+    onSuccess: (_, { serviceId }) => {
+      queryClient.invalidateQueries({ queryKey: ['service', serviceId] });
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
+  });
+};
+
+export const useValidateServiceUpdate = () => {
+  return useMutation<
+    ServiceUpdateResponse,
+    AxiosError<ApiError>,
+    { serviceId: number; updateData: ServiceUpdateRequest }
+  >({
+    mutationFn: async ({ serviceId, updateData }) => {
+      const response = await api.put(`/services/${serviceId}`, {
+        ...updateData,
+        validate_only: true,
+      });
+      return response.data;
+    },
   });
 };
 

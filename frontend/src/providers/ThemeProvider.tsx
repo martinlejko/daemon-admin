@@ -15,13 +15,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     <NextThemeProvider
       attribute="class"
       defaultTheme="system"
-      enableSystem
       disableTransitionOnChange={false}
+      enableSystem
       storageKey="owleyes-theme"
     >
-      <ChakraProvider value={theme}>
-        {children}
-      </ChakraProvider>
+      <ChakraProvider value={theme}>{children}</ChakraProvider>
     </NextThemeProvider>
   );
 };
