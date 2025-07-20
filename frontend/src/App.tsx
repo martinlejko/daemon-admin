@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import Layout from '@/components/Layout/Layout';
+import Layout from '@/components/Layout/layout';
 import AddServer from '@/pages/AddServer';
 import Dashboard from '@/pages/Dashboard';
 import EditServer from '@/pages/EditServer';

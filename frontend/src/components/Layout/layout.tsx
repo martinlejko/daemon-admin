@@ -6,8 +6,8 @@ import { chakra } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 import { useUIStore } from '@/store';
 import NotificationToast from '../ui/NotificationToast';
-import Header from './Header';
-import Sidebar from './Sidebar';
+import Header from './header';
+import Sidebar from './sidebar';
 
 const Layout: React.FC = () => {
   const {
