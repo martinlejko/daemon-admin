@@ -11,6 +11,7 @@ import {
   FiEdit2,
   FiHardDrive,
   FiMonitor,
+  FiPlus,
   FiRefreshCw,
   FiServer,
   FiSettings,
@@ -587,15 +588,34 @@ const ServerDetail: React.FC = () => {
               <FiActivity />
               Services
             </chakra.h2>
-            <Link to={`/services?server_id=${server.id}`}>
-              <chakra.button
-                _hover={{ color: 'blue.600' }}
-                color="blue.500"
-                fontSize="sm"
-              >
-                View all services →
-              </chakra.button>
-            </Link>
+            <chakra.div display="flex" gap="2">
+              <Link to={`/services/new?server_id=${server.id}`}>
+                <chakra.button
+                  _hover={{ bg: 'green.600' }}
+                  alignItems="center"
+                  bg="green.500"
+                  borderRadius="md"
+                  color="white"
+                  display="flex"
+                  fontSize="sm"
+                  gap="2"
+                  px="3"
+                  py="2"
+                >
+                  <FiPlus size={14} />
+                  Create Service
+                </chakra.button>
+              </Link>
+              <Link to={`/services?server_id=${server.id}`}>
+                <chakra.button
+                  _hover={{ color: 'blue.600' }}
+                  color="blue.500"
+                  fontSize="sm"
+                >
+                  View all services →
+                </chakra.button>
+              </Link>
+            </chakra.div>
           </chakra.div>
 
           {isLoadingServices ? (

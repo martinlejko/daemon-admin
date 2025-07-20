@@ -8,6 +8,7 @@ import type React from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from '@/components/Layout/layout';
 import AddServer from '@/pages/AddServer';
+import CreateService from '@/pages/CreateService';
 import Dashboard from '@/pages/Dashboard';
 import EditServer from '@/pages/EditServer';
 import EditService from '@/pages/EditService';
@@ -44,6 +45,7 @@ const App: React.FC = () => {
 
             {/* Service routes */}
             <Route element={<Services />} path="services" />
+            <Route element={<CreateService />} path="services/new" />
             <Route element={<ServiceDetail />} path="services/:id" />
             <Route element={<EditService />} path="services/:id/edit" />
 

@@ -14,6 +14,7 @@ import {
   FiFilter,
   FiPause,
   FiPlay,
+  FiPlus,
   FiRefreshCw,
   FiRotateCcw,
   FiSearch,
@@ -190,6 +191,27 @@ const Services: React.FC = () => {
           </chakra.div>
 
           <chakra.div display="flex" gap="2">
+            <Link 
+              to={`/services/new${currentServerId ? `?server_id=${currentServerId}` : ''}`}
+            >
+              <chakra.button
+                _hover={{ bg: 'blue.600' }}
+                alignItems="center"
+                bg="blue.500"
+                borderRadius="md"
+                color="white"
+                display="flex"
+                gap="2"
+                px="4"
+                py="2"
+              >
+                <FiPlus />
+                <chakra.span display={{ base: 'none', md: 'inline' }}>
+                  Create Service
+                </chakra.span>
+              </chakra.button>
+            </Link>
+            
             <chakra.button
               _disabled={{ opacity: 0.5 }}
               _hover={{ bg: 'gray.100', _dark: { bg: 'gray.800' } }}
